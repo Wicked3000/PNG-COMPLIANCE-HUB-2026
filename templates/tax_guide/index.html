@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Tax Knowledge Base — PNG Compliance Hub 2026{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+  <div>
+    <div class="page-title"><i class="bi bi-mortarboard-fill text-accent"></i> Tax Knowledge Base</div>
+    <div class="page-subtitle">Simple guides to help you stay compliant with PNG tax laws.</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:20px">
+  {% for slug, guide in guides.items %}
+  <a href="{% url 'tax_guide:detail' slug %}" class="glass-card" style="text-decoration:none;display:block;transition:transform 0.2s">
+    <div style="font-size:32px;color:var(--accent-green);margin-bottom:12px"><i class="bi {{ guide.icon }}"></i></div>
+    <div style="font-size:18px;font-weight:700;color:var(--text-primary)">{{ guide.title }}</div>
+    <div class="small text-muted mt-2">Click to read the full guide on IRC requirements for this tax type.</div>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

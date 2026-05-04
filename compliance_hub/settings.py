@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'swt',
     'sbt',
     'reports',
+    'tax_guide',
+    
+    # 3rd Party
+    'markdownx',
 ]
 
 MIDDLEWARE = [

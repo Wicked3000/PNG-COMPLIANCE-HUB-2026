@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ guide.title }} — PNG Compliance Hub 2026{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+  <div>
+    <div class="page-title"><i class="bi {{ guide.icon }} text-accent"></i> {{ guide.title }}</div>
+    <div class="page-subtitle">Official Guidance for the 2026 Tax Year</div>
+  </div>
+  <a href="{% url 'tax_guide:index' %}" class="btn-ghost">← Back to Guides</a>
+</div>
+
+<div class="glass-card" style="max-width:800px;margin:0 auto">
+  <div class="markdown-content" style="line-height:1.8;font-size:15px;color:var(--text-secondary)">
+    {{ guide.content|linebreaksbr }}
+  </div>
+  
+  <div class="alert alert-info mt-5">
+    <i class="bi bi-info-circle-fill"></i> This information is based on the current <strong>IRC Papua New Guinea</strong> regulations. For complex tax matters, always consult a registered tax agent in PNG.
+  </div>
+</div>
+{% endblock %}

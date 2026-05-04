@@ -70,6 +70,9 @@
       <a href="{% url 'reports:home' %}" class="nav-link {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
         <span class="nav-icon"><i class="bi bi-file-pdf"></i></span> Export to IRC
       </a>
+      <a href="{% url 'tax_guide:index' %}" class="nav-link {% if request.resolver_match.app_name == 'tax_guide' %}active{% endif %}">
+        <span class="nav-icon"><i class="bi bi-mortarboard"></i></span> Tax Knowledge Base
+      </a>
 
       <div class="nav-section-label">Account</div>
       <a href="{% url 'accounts:profile' %}" class="nav-link">

@@ -51,6 +51,20 @@ GST_FILING_FREQ = [
 ]
 
 
+USER_ROLES = [
+    ('OWNER',      'Business Owner'),
+    ('ACCOUNTANT', 'External Accountant'),
+    ('STAFF',      'Compliance Staff'),
+]
+
+NOTIFICATION_PREFS = [
+    ('SMS',   'SMS (Mobile)'),
+    ('EMAIL', 'Email'),
+    ('BOTH',  'Both SMS & Email'),
+    ('NONE',  'No Notifications'),
+]
+
+
 class BusinessProfile(models.Model):
     """Core business entity linked to a Django user account."""
 
@@ -68,6 +82,11 @@ class BusinessProfile(models.Model):
     gst_filing_frequency    = models.CharField(max_length=10, choices=GST_FILING_FREQ, default='QUARTERLY')
     sbt_eligible            = models.BooleanField(default=True,  verbose_name='SBT Eligible?')
     annual_turnover_estimate= models.DecimalField(max_digits=14, decimal_places=2, default=0)
+
+    # Phase 3: Enterprise Roles & Alerts
+    role            = models.CharField(max_length=20, choices=USER_ROLES, default='OWNER')
+    notify_method   = models.CharField(max_length=10, choices=NOTIFICATION_PREFS, default='BOTH')
+    notify_days_before = models.IntegerField(default=3, help_text='Days before deadline to alert')
 
     # Metadata
     created_at  = models.DateTimeField(auto_now_add=True)

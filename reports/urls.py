@@ -10,4 +10,5 @@ urlpatterns = [
     path('gst-return/<int:pk>/', views.gst_return_pdf, name='gst_return_pdf'),
     path('swt-return/<int:pk>/', views.swt_return_pdf, name='swt_return_pdf'),
     path('sbt-return/<int:pk>/', views.sbt_return_pdf, name='sbt_return_pdf'),
+    path('voucher/<str:tax_type>/<str:amount>/', views.payment_voucher_pdf, name='payment_voucher'),
 ]

@@ -12,5 +12,6 @@ urlpatterns = [
     path('gst/', include('gst.urls')),
     path('swt/', include('swt.urls')),
     path('sbt/', include('sbt.urls')),
-    path('reports/', include('reports.urls')),
+    path('reports/',  include('reports.urls')),
+    path('guide/',    include('tax_guide.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

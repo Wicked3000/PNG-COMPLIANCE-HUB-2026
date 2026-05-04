@@ -80,3 +80,23 @@ def sbt_return_pdf(request, pk):
         'return': res,
     }
     return _generate_pdf_response('reports/pdf/sbt_return_pdf.html', context, f"SBT_Declaration_{res.tax_year}")
+
+@login_required
+def payment_voucher_pdf(request, tax_type, amount):
+    """Generate a bank-ready IRC payment voucher."""
+    business = request.user.business
+    tax_codes = {
+        'gst': {'code': '012', 'name': 'Goods and Services Tax'},
+        'swt': {'code': '011', 'name': 'Salary & Wages Tax'},
+        'sbt': {'code': '013', 'name': 'Small Business Tax'},
+    }
+    info = tax_codes.get(tax_type.lower(), {'code': '???', 'name': 'Unknown Tax'})
+    
+    context = {
+        'business': business,
+        'tax_type_name': info['name'],
+        'tax_code': info['code'],
+        'amount': float(amount),
+        'period_name': 'Current Period 2026'
+    }
+    return _generate_pdf_response('reports/pdf/irc_payment_voucher.html', context, f"IRC_Payment_Voucher_{tax_type}")
