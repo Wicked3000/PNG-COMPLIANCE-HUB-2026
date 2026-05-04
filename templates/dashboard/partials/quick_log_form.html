@@ -1,0 +1,50 @@
+<form hx-post="{% url 'dashboard:quick_log_sale' %}"
+      hx-target="#fab-modal-body"
+      hx-swap="innerHTML"
+      onsubmit="return handleOfflineSubmit(event, this)">
+  {% csrf_token %}
+  {% for field in form %}
+    <div class="form-group">
+      <label class="form-label">{{ field.label }}</label>
+      {{ field }}
+    </div>
+  {% endfor %}
+  <button type="submit" class="btn-accent w-100" style="justify-content:center;margin-top:8px">
+    <i class="bi bi-lightning-fill"></i> Log Sale
+  </button>
+</form>
+
+<script>
+function handleOfflineSubmit(event, form) {
+  if (!navigator.onLine) {
+    event.preventDefault();
+    const formData = new FormData(form);
+    const entry = {
+      description: formData.get('description'),
+      amount_incl_gst: formData.get('amount_incl_gst'),
+      date: new Date().toISOString(),
+      type: 'SALE'
+    };
+    
+    // Save to IndexedDB
+    window.indexedDBManager.saveEntry(entry).then(() => {
+        // Show local success state
+        document.getElementById('fab-modal-body').innerHTML = `
+            <div class="text-center p-4">
+                <div style="font-size:40px;margin-bottom:15px;color:var(--accent-teal)"><i class="bi bi-broadcast"></i></div>
+                <div class="fw-700 text-accent mb-2">Saved Offline</div>
+                <p class="small text-muted">You are currently offline. This sale has been queued and will sync automatically when you reconnect.</p>
+                <button onclick="document.getElementById('fabModal').classList.remove('active')" class="btn-ghost mt-3">Done</button>
+            </div>
+        `;
+        
+        // Trigger SW sync if possible
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            navigator.serviceWorker.ready.then(reg => reg.sync.register('sync-ledger'));
+        }
+    });
+    return false;
+  }
+  return true;
+}
+</script>

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}SWT Calculator — PNG Compliance Hub 2026{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+  <div>
+    <div class="page-title"><i class="bi bi-cash-stack text-accent"></i> SWT Calculator</div>
+    <div class="page-subtitle">2026 Resident Progressive Tax Brackets — IRC Certified</div>
+  </div>
+  <a href="{% url 'swt:dashboard' %}" class="btn-ghost">← Back</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+
+  <!-- Input Form -->
+  <div class="glass-card">
+    <div style="font-size:15px;font-weight:700;margin-bottom:20px">Calculate SWT</div>
+    <form method="post" action="{% url 'swt:calculator' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Annual Gross Salary (K)</label>
+        <input type="number" name="salary" class="form-control" placeholder="e.g. 45000"
+               value="{{ request.POST.salary|default:'' }}" min="0" step="100" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Employee Residency</label>
+        <select name="is_resident" class="form-control form-select">
+          <option value="true" {% if request.POST.is_resident != 'false' %}selected{% endif %}>Resident (PNG)</option>
+          <option value="false" {% if request.POST.is_resident == 'false' %}selected{% endif %}>Non-Resident (22% flat)</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-accent w-100" style="justify-content:center">
+        <i class="bi bi-lightning-charge-fill"></i> Calculate SWT
+      </button>
+    </form>
+
+    <hr class="divider">
+    <!-- Bracket Reference -->
+    <div class="card-label" style="margin-bottom:10px">2026 Resident Brackets</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      {% for label, rate, color in bracket_display %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--glass-bg);border-radius:8px;border:1px solid var(--glass-border)">
+        <span class="small">{{ label }}</span>
+        <span class="badge badge-info">{{ rate }}</span>
+      </div>
+      {% empty %}
+      <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--glass-bg);border-radius:8px"><span class="small">K0 – K20,000</span><span class="badge badge-info">22%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--glass-bg);border-radius:8px"><span class="small">K20,001 – K33,000</span><span class="badge badge-info">30%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--glass-bg);border-radius:8px"><span class="small">K33,001 – K70,000</span><span class="badge badge-info">35%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--glass-bg);border-radius:8px"><span class="small">K70,001 – K250,000</span><span class="badge badge-info">40%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--glass-bg);border-radius:8px"><span class="small">K250,001+</span><span class="badge badge-info">42%</span></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Results -->
+  {% if result %}
+  <div>
+    <!-- Summary Card -->
+    <div class="glass-card mb-4" style="border-color:rgba(0,229,160,0.2)">
+      <div class="card-label">SWT Result</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+        <div>
+          <div class="small text-muted">Annual SWT</div>
+          <div style="font-size:24px;font-weight:800;color:var(--accent-warn)">K{{ result.annual_tax|floatformat:2 }}</div>
+        </div>
+        <div>
+          <div class="small text-muted">Monthly SWT</div>
+          <div style="font-size:24px;font-weight:800;color:var(--accent-warn)">K{{ result.monthly_tax|floatformat:2 }}</div>
+        </div>
+        <div>
+          <div class="small text-muted">Fortnightly SWT</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text-primary)">K{{ result.fortnightly_tax|floatformat:2 }}</div>
+        </div>
+        <div>
+          <div class="small text-muted">Effective Rate</div>
+          <div style="font-size:18px;font-weight:700;color:var(--accent-green)">{{ result.effective_rate }}%</div>
+        </div>
+      </div>
+      <hr class="divider">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div class="small text-muted">Net Annual Pay</div>
+          <div class="fw-700 text-accent">K{{ result.net_annual|floatformat:2 }}</div>
+        </div>
+        <div>
+          <div class="small text-muted">Net Monthly Pay</div>
+          <div class="fw-700 text-accent">K{{ result.net_monthly|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bracket Breakdown -->
+    <div class="glass-card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px">Tax Breakdown by Bracket</div>
+      {% for b in result.breakdown %}
+      <div style="margin-bottom:12px">
+        <div class="d-flex justify-between align-center" style="margin-bottom:4px">
+          <span class="small fw-600">{{ b.bracket }}</span>
+          <div class="d-flex gap-2">
+            <span class="badge badge-muted">{{ b.rate }}</span>
+            <span class="small fw-700 text-warn">K{{ b.tax|floatformat:2 }}</span>
+          </div>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill"
+               style="width:{% widthratio b.tax result.annual_tax 100 %}%;background:linear-gradient(90deg,var(--accent-teal),var(--accent-blue))">
+          </div>
+        </div>
+        <div class="small text-muted" style="margin-top:2px">Taxable in band: K{{ b.taxable_amount|floatformat:2 }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <div class="glass-card" style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+    <div style="font-size:48px;margin-bottom:16px;color:rgba(255,255,255,0.1)"><i class="bi bi-cash-stack"></i></div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px">Enter a salary to calculate SWT</div>
+    <div class="small">Results will show annual, monthly, and fortnightly tax with a full bracket breakdown.</div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

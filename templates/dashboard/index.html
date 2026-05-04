@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — PNG Compliance Hub 2026{% endblock %}
+
+{% block content %}
+
+<!-- ── Top Bar ──────────────────────────────────────────────── -->
+<div class="top-bar">
+  <div>
+    <div class="page-title"><i class="bi bi-person-circle text-accent"></i> Welcome, {{ business.business_name|truncatechars:22 }}</div>
+    <div class="page-subtitle">{{ today|date:"l, j F Y" }} &nbsp;·&nbsp; IRC Tax Year 2026</div>
+  </div>
+  <div class="top-actions">
+    <div class="compliance-badge">
+      <div class="compliance-score">{{ compliance_score }}%</div>
+      <div class="compliance-label">Compliance<br>Score</div>
+    </div>
+    <a href="{% url 'reports:home' %}" class="btn-accent">
+      <i class="bi bi-file-earmark-pdf"></i> IRC Reports
+    </a>
+  </div>
+</div>
+
+<!-- ── Stat Cards ────────────────────────────────────────────── -->
+<div class="stat-grid">
+
+  <!-- GST Card -->
+  <div class="glass-card">
+    <div class="card-icon green"><i class="bi bi-receipt"></i></div>
+    <div class="card-label">GST This Month</div>
+    <div class="card-value {% if gst_data.gst_payable > 0 %}warn{% else %}accent{% endif %}">
+      K{{ gst_data.gst_payable|floatformat:0 }}
+    </div>
+    <div class="card-sub">
+      Output K{{ gst_data.output_gst|floatformat:0 }} &minus; ITC K{{ gst_data.input_gst|floatformat:0 }}
+    </div>
+    <div class="progress-bar-wrap mt-4">
+      <div class="progress-bar-fill" style="width:{% widthratio gst_data.gst_payable month_sales 100 %}%;background:{% if gst_data.gst_payable > 0 %}linear-gradient(90deg,#FFB800,#FF8C00){% else %}linear-gradient(90deg,var(--accent-green),var(--accent-teal)){% endif %}"></div>
+    </div>
+    <a href="{% url 'gst:dashboard' %}" class="small text-accent d-flex align-center gap-2 mt-4">View GST Ledger →</a>
+  </div>
+
+  <!-- SWT Card -->
+  <div class="glass-card">
+    <div class="card-icon teal"><i class="bi bi-people"></i></div>
+    <div class="card-label">SWT This Period</div>
+    <div class="card-value {% if swt_owing > 0 %}warn{% else %}accent{% endif %}">
+      K{{ swt_owing|floatformat:0 }}
+    </div>
+    <div class="card-sub">
+      {% if recent_swt %}{{ recent_swt.employee_count }} employee{{ recent_swt.employee_count|pluralize }}{% else %}No payroll runs yet{% endif %}
+    </div>
+    <div class="progress-bar-wrap mt-4">
+      <div class="progress-bar-fill" style="width:60%"></div>
+    </div>
+    <a href="{% url 'swt:dashboard' %}" class="small text-accent d-flex align-center gap-2 mt-4">View Payroll →</a>
+  </div>
+
+  <!-- SBT Card -->
+  <div class="glass-card">
+    <div class="card-icon blue"><i class="bi bi-shop-window"></i></div>
+    <div class="card-label">SBT Status 2026</div>
+    <div class="card-value {% if sbt_data.is_eligible %}accent{% else %}danger{% endif %}" style="font-size:18px">
+      {% if not sbt_data.is_eligible %}Not Eligible{% elif sbt_data.sbt_type == 'Flat Fee' %}K{{ sbt_data.sbt_liability|floatformat:0 }} Flat{% else %}K{{ sbt_data.sbt_liability|floatformat:0 }}{% endif %}
+    </div>
+    <div class="card-sub">{{ sbt_data.rate_display|default:sbt_data.note|truncatechars:40 }}</div>
+    <div class="mt-4">
+      <span class="badge {% if sbt_data.is_eligible %}badge-success{% else %}badge-danger{% endif %}">
+        {% if sbt_data.is_eligible %}<i class="bi bi-check-circle-fill"></i> SBT Eligible{% else %}<i class="bi bi-x-circle-fill"></i> Not Eligible{% endif %}
+      </span>
+    </div>
+    <a href="{% url 'sbt:dashboard' %}" class="small text-accent d-flex align-center gap-2 mt-4">View SBT →</a>
+  </div>
+
+  <!-- Next Filing Card -->
+  <div class="glass-card">
+    <div class="card-icon warn"><i class="bi bi-calendar-event"></i></div>
+    <div class="card-label">Next IRC Filing</div>
+    <div class="card-value" style="font-size:20px;color:var(--accent-warn)">
+      {{ next_filing|date:"j M" }}
+    </div>
+    <div class="card-sub">{{ next_filing|date:"Y" }} — GST Return Due</div>
+    <div class="mt-4">
+      <span class="badge badge-warn"><i class="bi bi-clock"></i> {{ next_filing|timeuntil }} away</span>
+    </div>
+    <a href="{% url 'reports:home' %}" class="small text-accent d-flex align-center gap-2 mt-4">Prepare Return →</a>
+  </div>
+
+</div>
+
+<!-- ── Revenue vs Tax Chart ──────────────────────────────────── -->
+<div class="glass-card chart-card">
+  <div class="d-flex align-center justify-between mb-4">
+    <div>
+      <div class="card-label">Financial Overview</div>
+      <div style="font-size:15px;font-weight:700">Revenue vs GST Liability — Last 6 Months</div>
+    </div>
+    <div class="d-flex gap-2">
+      <span class="badge badge-success">● Revenue</span>
+      <span class="badge badge-warn">● GST Liability</span>
+    </div>
+  </div>
+  <canvas id="revenueChart"></canvas>
+</div>
+
+<!-- ── Bottom Row: Recent Activity + Quick Actions ──────────── -->
+<div style="display:grid;grid-template-columns:1fr 340px;gap:16px">
+
+  <!-- Tabbed Activity Feed -->
+  <div class="glass-card">
+    <div class="glass-tabs">
+      <button class="tab-btn active" onclick="switchTab(event, 'ledgerTab')">
+        <i class="bi bi-receipt"></i> Ledger
+      </button>
+      <button class="tab-btn" onclick="switchTab(event, 'payrollTab')">
+        <i class="bi bi-people"></i> Payroll
+      </button>
+      <button class="tab-btn" onclick="switchTab(event, 'filingTab')">
+        <i class="bi bi-journal-check"></i> Filings
+      </button>
+    </div>
+
+    <!-- Tab 1: Ledger -->
+    <div id="ledgerTab" class="tab-content active">
+      <div class="d-flex align-center justify-between mb-4">
+        <div style="font-size:14px;font-weight:700">Recent Transactions</div>
+        <a href="{% url 'gst:ledger' %}" class="btn-ghost" style="padding:6px 12px;font-size:12px">Full Ledger</a>
+      </div>
+      {% if recent_ledger %}
+        <table class="table-glass">
+          <thead><tr><th>Date</th><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
+          <tbody>
+            {% for entry in recent_ledger %}
+            <tr>
+              <td class="small text-muted">{{ entry.date|date:"d M" }}</td>
+              <td>
+                <div class="fw-600">{{ entry.description }}</div>
+                <div class="small {% if entry.entry_type == 'SALE' %}text-accent{% else %}text-warn{% endif %}">{{ entry.get_entry_type_display }}</div>
+              </td>
+              <td style="text-align:right;font-weight:700">K{{ entry.amount_incl_gst|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div style="text-align:center;padding:40px 0;color:var(--text-muted)">
+          <div style="font-size:40px;margin-bottom:12px"><i class="bi bi-journal-text"></i></div>
+          <p>No transactions recorded yet.</p>
+          <a href="{% url 'gst:add_entry' %}" class="btn-accent" style="margin-top:12px;display:inline-flex"><i class="bi bi-plus-lg"></i> Log First Sale</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Tab 2: Payroll -->
+    <div id="payrollTab" class="tab-content">
+      <div class="d-flex align-center justify-between mb-4">
+        <div style="font-size:14px;font-weight:700">Recent Payroll Runs</div>
+        <a href="{% url 'swt:dashboard' %}" class="btn-ghost" style="padding:6px 12px;font-size:12px">All Payroll</a>
+      </div>
+      {% if recent_payroll %}
+        <table class="table-glass">
+          <thead><tr><th>Employee</th><th>Period</th><th style="text-align:right">Net Pay</th></tr></thead>
+          <tbody>
+            {% for entry in recent_payroll %}
+            <tr>
+              <td class="fw-600">{{ entry.employee.full_name }}</td>
+              <td class="small text-muted">{{ entry.period_start|date:"d M" }} – {{ entry.period_end|date:"d M" }}</td>
+              <td style="text-align:right;font-weight:700" class="text-accent">K{{ entry.net_pay|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div style="text-align:center;padding:40px 0;color:var(--text-muted)">
+          <div style="font-size:40px;margin-bottom:12px"><i class="bi bi-people"></i></div>
+          <p>No payroll entries yet.</p>
+          <a href="{% url 'swt:employees' %}" class="btn-accent" style="margin-top:12px;display:inline-flex"><i class="bi bi-person-plus"></i> Add Employee</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Tab 3: Filings -->
+    <div id="filingTab" class="tab-content">
+      <div class="d-flex align-center justify-between mb-4">
+        <div style="font-size:14px;font-weight:700">Recent Tax Filings</div>
+        <a href="{% url 'reports:home' %}" class="btn-ghost" style="padding:6px 12px;font-size:12px">Report Centre</a>
+      </div>
+      {% if recent_filings %}
+        <table class="table-glass">
+          <thead><tr><th>Form Type</th><th>Period</th><th style="text-align:right">Status</th></tr></thead>
+          <tbody>
+            {% for filing in recent_filings %}
+            <tr>
+              <td>
+                <div class="fw-700">{{ filing.type }}</div>
+                <div class="small text-muted">{{ filing.label }}</div>
+              </td>
+              <td class="small text-muted">{{ filing.date|date:"M Y" }}</td>
+              <td style="text-align:right">
+                <span class="badge badge-{% if filing.status == 'PAID' %}success{% elif filing.status == 'OVERDUE' %}danger{% else %}warn{% endif %}">{{ filing.status_display }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div style="text-align:center;padding:40px 0;color:var(--text-muted)">
+          <div style="font-size:40px;margin-bottom:12px"><i class="bi bi-file-earmark-check"></i></div>
+          <p>No tax returns filed yet.</p>
+          <a href="{% url 'reports:home' %}" class="btn-accent" style="margin-top:12px;display:inline-flex"><i class="bi bi-file-earmark-pdf"></i> Prepare Return</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Quick Actions Panel -->
+  <div class="glass-card">
+    <div style="font-size:15px;font-weight:700;margin-bottom:16px"><i class="bi bi-lightning-fill text-accent"></i> Quick Actions</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a href="{% url 'gst:add_entry' %}" class="btn-accent w-100" style="justify-content:center">
+        <i class="bi bi-plus-circle"></i> Log Sale / Purchase
+      </a>
+      <a href="{% url 'swt:calculator' %}" class="btn-ghost w-100" style="justify-content:center">
+        <i class="bi bi-calculator"></i> Calculate SWT
+      </a>
+      <a href="{% url 'sbt:calculator' %}" class="btn-ghost w-100" style="justify-content:center">
+        <i class="bi bi-graph-up-arrow"></i> SBT Calculator
+      </a>
+      <a href="{% url 'reports:home' %}" class="btn-ghost w-100" style="justify-content:center">
+        <i class="bi bi-file-earmark-pdf"></i> Generate IRC Form
+      </a>
+    </div>
+    <hr class="divider">
+    <div class="card-label">IRC Filing Status</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+      <div class="d-flex justify-between align-center">
+        <span class="small">GST Return</span>
+        <span class="badge badge-{% if recent_gst and recent_gst.status == 'PAID' %}success{% elif recent_gst %}warn{% else %}muted{% endif %}">
+          {% if recent_gst %}{{ recent_gst.get_status_display }}{% else %}No Returns{% endif %}
+        </span>
+      </div>
+      <div class="d-flex justify-between align-center">
+        <span class="small">SWT Return</span>
+        <span class="badge badge-{% if recent_swt and recent_swt.status == 'PAID' %}success{% elif recent_swt %}warn{% else %}muted{% endif %}">
+          {% if recent_swt %}{{ recent_swt.get_status_display }}{% else %}No Returns{% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Tab Switching Logic ──────────────────────────────────────
+function switchTab(evt, tabName) {
+  const contents = document.getElementsByClassName("tab-content");
+  for (let i = 0; i < contents.length; i++) {
+    contents[i].classList.remove("active");
+  }
+
+  const buttons = document.getElementsByClassName("tab-btn");
+  for (let i = 0; i < buttons.length; i++) {
+    buttons[i].classList.remove("active");
+  }
+
+  document.getElementById(tabName).classList.add("active");
+  evt.currentTarget.classList.add("active");
+}
+
+// ── Revenue vs Tax Chart (Chart.js) ──────────────────────────
+const ctx = document.getElementById('revenueChart').getContext('2d');
+
+const labels   = {{ chart_labels|safe }};
+const revenue  = {{ chart_revenue|safe }};
+const taxData  = {{ chart_tax|safe }};
+
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'Revenue (K)',
+        data: revenue,
+        borderColor: '#00E5A0',
+        backgroundColor: 'rgba(0,229,160,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#00E5A0',
+        pointRadius: 4,
+        borderWidth: 2,
+      },
+      {
+        label: 'GST Liability (K)',
+        data: taxData,
+        borderColor: '#FFB800',
+        backgroundColor: 'rgba(255,184,0,0.06)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#FFB800',
+        pointRadius: 4,
+        borderWidth: 2,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0D1F3C',
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        titleColor: '#E8F0FE',
+        bodyColor: '#7B9BB5',
+        callbacks: {
+          label: (ctx) => ` K${ctx.parsed.y.toLocaleString()} — ${ctx.dataset.label}`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: '#4A6580', font: { size: 11 } }
+      },
+      y: {
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: {
+          color: '#4A6580', font: { size: 11 },
+          callback: (v) => `K${v.toLocaleString()}`
+        }
+      }
+    }
+  }
+});
+</script>
+{% endblock %}

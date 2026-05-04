@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}GST Calculator — PNG Compliance Hub 2026{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+  <div>
+    <div class="page-title"><i class="bi bi-calculator text-accent"></i> GST Calculator</div>
+    <div class="page-subtitle">10% Rate with Input Tax Credit (ITC) — IRC 2026</div>
+  </div>
+  <a href="{% url 'gst:dashboard' %}" class="btn-ghost">← Back</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+
+  <div class="glass-card">
+    <div style="font-size:15px;font-weight:700;margin-bottom:20px">Calculate Net GST</div>
+    <form method="post" action="{% url 'gst:calculator' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Total Sales (GST-exclusive, K)</label>
+        <input type="number" name="sales" class="form-control" placeholder="e.g. 12500"
+               value="{{ request.POST.sales|default:'' }}" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total Purchases / Expenses (GST-exclusive, K)</label>
+        <input type="number" name="purchases" class="form-control" placeholder="e.g. 4000"
+               value="{{ request.POST.purchases|default:'' }}" min="0" step="0.01">
+        <small class="small text-muted" style="margin-top:4px;display:block">These generate Input Tax Credits (ITC) you can claim back.</small>
+      </div>
+      <button type="submit" class="btn-accent w-100" style="justify-content:center">
+        <i class="bi bi-lightning-charge-fill"></i> Calculate GST
+      </button>
+    </form>
+  </div>
+
+  {% if result %}
+  <div class="glass-card" style="border-color:rgba(0,229,160,0.2)">
+    <div class="card-label">GST Calculation Result</div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,184,0,0.08);border-radius:10px;border:1px solid rgba(255,184,0,0.2)">
+        <div>
+          <div class="small text-muted">Output GST Collected</div>
+          <div class="small" style="color:var(--text-secondary)">10% × K{{ result.sales_amount|floatformat:2 }} sales</div>
+        </div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent-warn)">K{{ result.output_gst|floatformat:2 }}</div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(0,229,160,0.08);border-radius:10px;border:1px solid rgba(0,229,160,0.2)">
+        <div>
+          <div class="small text-muted">Input Tax Credit (ITC)</div>
+          <div class="small" style="color:var(--text-secondary)">10% × K{{ result.purchases_amount|floatformat:2 }} purchases</div>
+        </div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent-green)">− K{{ result.input_gst|floatformat:2 }}</div>
+      </div>
+
+      <div style="border-top:1px solid var(--glass-border);padding-top:14px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="fw-700" style="font-size:15px">{% if result.refund_due %}GST Refund Due{% else %}Net GST Payable to IRC{% endif %}</div>
+          <div class="small text-muted">Output GST − Input Tax Credits</div>
+        </div>
+        <div style="font-size:28px;font-weight:800;color:{% if result.refund_due %}var(--accent-green){% else %}var(--accent-warn){% endif %}">
+          {% if result.refund_due %}+{% endif %}K{{ result.net_gst|floatformat:2 }}
+        </div>
+      </div>
+
+      {% if result.refund_due %}
+      <div class="alert alert-success">
+        <i class="bi bi-check-circle-fill"></i> Your Input Tax Credits exceed Output GST. You are entitled to a <strong>K{{ result.gst_refund_due|floatformat:2 }} refund</strong> from IRC.
+      </div>
+      {% else %}
+      <div class="alert alert-warn">
+        <i class="bi bi-exclamation-triangle-fill"></i> You owe <strong>K{{ result.gst_payable|floatformat:2 }}</strong> in GST to IRC for this period.
+      </div>
+      {% endif %}
+
+      <a href="{% url 'gst:add_entry' %}" class="btn-ghost w-100" style="justify-content:center">
+        <i class="bi bi-clipboard-check"></i> Record This in Ledger
+      </a>
+    </div>
+  </div>
+  {% else %}
+  <div class="glass-card" style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+    <div style="font-size:48px;margin-bottom:16px;color:rgba(255,255,255,0.1)"><i class="bi bi-calculator"></i></div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px">Enter sales & purchases amounts</div>
+    <div class="small">Net GST = Output GST (10% of Sales) − Input Tax Credits (10% of Purchases)</div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

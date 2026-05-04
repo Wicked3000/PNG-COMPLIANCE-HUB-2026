@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Business Profile — PNG Compliance Hub 2026{% endblock %}
+{% block content %}
+<div class="top-bar">
+  <div><div class="page-title"><i class="bi bi-building"></i> Business Profile</div>
+  <div class="page-subtitle">Your IRC registration & tax settings</div></div>
+</div>
+<div style="max-width:600px">
+  <div class="glass-card">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+      <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,var(--accent-green),var(--accent-teal));display:flex;align-items:center;justify-content:center;font-size:28px;"><i class="bi bi-shop"></i></div>
+      <div>
+        <div style="font-size:20px;font-weight:800">{{ business.business_name }}</div>
+        <div class="small text-muted">TIN: {{ business.tin|default:"Not registered" }}</div>
+      </div>
+    </div>
+    <table class="table-glass">
+      <tbody>
+        <tr><td class="text-muted small">Province</td><td class="fw-600">{{ business.get_province_display }}</td></tr>
+        <tr><td class="text-muted small">Industry</td><td class="fw-600">{{ business.get_industry_display }}</td></tr>
+        <tr><td class="text-muted small">Phone</td><td class="fw-600">{{ business.phone|default:"—" }}</td></tr>
+        <tr><td class="text-muted small">GST Registered</td><td>{% if business.gst_registered %}<span class="badge badge-success"><i class="bi bi-check-circle-fill"></i> Yes</span>{% else %}<span class="badge badge-muted">No</span>{% endif %}</td></tr>
+        <tr><td class="text-muted small">SBT Eligible</td><td>{% if business.sbt_eligible %}<span class="badge badge-success"><i class="bi bi-check-circle-fill"></i> Yes</span>{% else %}<span class="badge badge-danger"><i class="bi bi-x-circle-fill"></i> No</span>{% endif %}</td></tr>
+        <tr><td class="text-muted small">Est. Annual Turnover</td><td class="fw-600">K{{ business.annual_turnover_estimate|floatformat:2 }}</td></tr>
+        <tr><td class="text-muted small">Member Since</td><td class="small">{{ business.created_at|date:"j F Y" }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glass-card" style="margin-top:24px">
+    <div style="font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <i class="bi bi-fingerprint text-accent"></i> Biometric Security
+      {% if webauthn_available %}
+        <span class="badge badge-success" style="font-size:10px"><i class="bi bi-shield-check"></i> System Active</span>
+      {% else %}
+        <span class="badge badge-danger" style="font-size:10px"><i class="bi bi-excl-triangle"></i> Hardware/SSL Error</span>
+      {% endif %}
+    </div>
+    
+    {% if credentials %}
+      <div style="margin-bottom:16px">
+        {% for cred in credentials %}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(255,255,255,0.03);border-radius:12px;margin-bottom:8px">
+            <div>
+              <div class="fw-600">{{ cred.device_name }}</div>
+              <div class="small text-muted">Registered: {{ cred.created_at|date:"j M Y" }}</div>
+            </div>
+            <span class="badge badge-success">Active</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align:center;padding:20px;color:var(--text-muted);background:rgba(255,255,255,0.02);border-radius:12px;margin-bottom:16px">
+        <div style="font-size:32px;margin-bottom:8px"><i class="bi bi-shield-lock"></i></div>
+        <div class="small">No biometric devices registered.<br>Register your fingerprint or FaceID for faster login.</div>
+      </div>
+    {% endif %}
+
+    <button onclick="registerBiometrics()" class="btn-accent w-100" style="justify-content:center" {% if not webauthn_available %}disabled{% endif %}>
+      <i class="bi bi-plus-lg"></i> Register Biometric Device
+    </button>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/biometrics.js"></script>
+{% endblock %}

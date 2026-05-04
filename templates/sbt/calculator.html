@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}SBT Calculator — PNG Compliance Hub 2026{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+  <div>
+    <div class="page-title"><i class="bi bi-bar-chart text-accent"></i> SBT Calculator</div>
+    <div class="page-subtitle">Small Business Tax — IRC 2026 Rates</div>
+  </div>
+  <a href="{% url 'sbt:dashboard' %}" class="btn-ghost">← Back</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+  <div class="glass-card">
+    <div style="font-size:15px;font-weight:700;margin-bottom:20px">Calculate SBT Liability</div>
+    <form method="post" action="{% url 'sbt:calculator' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Estimated Annual Turnover (K)</label>
+        <input type="number" name="turnover" class="form-control" placeholder="e.g. 80000"
+               value="{{ request.POST.turnover|default:'' }}" min="0" step="100" required>
+      </div>
+      <button type="submit" class="btn-accent w-100" style="justify-content:center"><i class="bi bi-lightning-charge-fill"></i> Calculate SBT</button>
+    </form>
+    <hr class="divider">
+    <div class="card-label" style="margin-bottom:10px">Rate Bands</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="padding:10px 14px;background:rgba(0,229,160,0.06);border-radius:10px;border:1px solid rgba(0,229,160,0.15)">
+        <div class="small fw-600">Turnover &lt; K50,000</div>
+        <div style="font-size:18px;font-weight:700;color:var(--accent-green)">K400 flat fee</div>
+      </div>
+      <div style="padding:10px 14px;background:rgba(10,191,188,0.06);border-radius:10px;border:1px solid rgba(10,191,188,0.15)">
+        <div class="small fw-600">K50,000 – K249,999</div>
+        <div style="font-size:18px;font-weight:700;color:var(--accent-teal)">2% of turnover</div>
+      </div>
+      <div style="padding:10px 14px;background:rgba(255,77,109,0.06);border-radius:10px;border:1px solid rgba(255,77,109,0.15)">
+        <div class="small fw-600">K250,000+</div>
+        <div style="font-size:14px;font-weight:600;color:var(--accent-danger)">Not eligible — standard tax regime</div>
+      </div>
+    </div>
+  </div>
+
+  {% if result %}
+  <div class="glass-card" style="border-color:{% if result.is_eligible %}rgba(0,229,160,0.2){% else %}rgba(255,77,109,0.2){% endif %}">
+    <div class="card-label">SBT Result</div>
+    <div style="margin-top:16px">
+      {% if result.is_eligible %}
+        <div style="font-size:36px;font-weight:800;color:var(--accent-green)">K{{ result.sbt_liability|floatformat:2 }}</div>
+        <div class="small text-muted" style="margin-top:4px">{{ result.rate_display }}</div>
+        <div class="alert alert-success" style="margin-top:20px"><i class="bi bi-check-circle-fill"></i> {{ result.note }}</div>
+        <hr class="divider">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="d-flex justify-between"><span class="small text-muted">Annual Turnover</span><span class="fw-600">K{{ result.annual_turnover|floatformat:2 }}</span></div>
+          <div class="d-flex justify-between"><span class="small text-muted">Tax Type</span><span class="fw-600">{{ result.sbt_type }}</span></div>
+          <div class="d-flex justify-between"><span class="small text-muted">Annual SBT Liability</span><span class="fw-700 text-accent">K{{ result.sbt_liability|floatformat:2 }}</span></div>
+        </div>
+        <a href="{% url 'sbt:declare' %}" class="btn-accent w-100" style="justify-content:center;margin-top:20px">
+          <i class="bi bi-clipboard-check"></i> File 2026 Declaration
+        </a>
+      {% else %}
+        <div style="font-size:24px;font-weight:700;color:var(--accent-danger)">Not Eligible for SBT</div>
+        <div class="alert alert-warn" style="margin-top:16px"><i class="bi bi-exclamation-triangle-fill"></i> {{ result.note }}</div>
+        <div class="small text-muted">Your business must register for GST and pay Income Tax under the standard regime.</div>
+        <a href="{% url 'gst:dashboard' %}" class="btn-ghost w-100" style="justify-content:center;margin-top:16px">
+          → Go to GST Module
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="glass-card" style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+    <div style="font-size:48px;margin-bottom:16px;color:rgba(255,255,255,0.1)"><i class="bi bi-shop"></i></div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px">Enter your annual turnover</div>
+    <div class="small">SBT applies to businesses with turnover below K250,000.</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

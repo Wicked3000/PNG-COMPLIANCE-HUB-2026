@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GSTS65A - GST Return - {{ return.business.business_name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 10pt;
+            color: #333;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header-logo {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #000;
+        }
+        .header-info {
+            text-align: right;
+        }
+        .form-title {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            background: #eee;
+            padding: 5px;
+            border: 1px solid #000;
+        }
+        .section-header {
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .field-row {
+            display: flex;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 4px;
+        }
+        .field-label {
+            flex: 1;
+            font-weight: 600;
+        }
+        .field-value {
+            flex: 1;
+            text-align: right;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+        .calculation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .calculation-table th, .calculation-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        .calculation-table th {
+            background: #f2f2f2;
+        }
+        .amount-col {
+            text-align: right;
+            width: 150px;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 8pt;
+            color: #666;
+            text-align: center;
+        }
+        .declaration-box {
+            margin-top: 30px;
+            border: 1px dashed #000;
+            padding: 15px;
+        }
+        .sig-line {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .sig-item {
+            border-top: 1px solid #000;
+            width: 200px;
+            text-align: center;
+            padding-top: 5px;
+        }
+        /* Print actions (only visible in browser preview) */
+        @media screen {
+            .print-actions {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #00E5A0;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                z-index: 1000;
+            }
+            .print-btn {
+                background: #060D1A;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            body {
+                background: #f0f2f5;
+                padding: 40px;
+            }
+            .page-container {
+                background: white;
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0 auto;
+                padding: 2cm;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-actions">
+        <button class="print-btn" onclick="window.print()">🖨️ Download as PDF / Print</button>
+    </div>
+
+    <div class="page-container">
+        <div class="header">
+            <div class="header-logo">IRC</div>
+            <div class="header-info">
+                <strong>Internal Revenue Commission</strong><br>
+                Papua New Guinea<br>
+                www.irc.gov.pg
+            </div>
+        </div>
+
+        <div class="form-title">GSTS65A - Goods and Services Tax Return</div>
+
+        <div class="section-header">1. Taxpayer Details</div>
+        <div class="field-row">
+            <div class="field-label">Name of Taxpayer:</div>
+            <div class="field-value">{{ return.business.business_name }}</div>
+        </div>
+        <div class="field-row">
+            <div class="field-label">Taxpayer Identification Number (TIN):</div>
+            <div class="field-value">{{ return.business.tin }}</div>
+        </div>
+        <div class="field-row">
+            <div class="field-label">Tax Period:</div>
+            <div class="field-value">{{ return.period_start|date:"F Y" }}</div>
+        </div>
+        <div class="field-row">
+            <div class="field-label">Due Date:</div>
+            <div class="field-value">{{ due_date|date:"d F Y" }}</div>
+        </div>
+
+        <div class="section-header" style="margin-top:20px">2. Calculation of GST</div>
+        <table class="calculation-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th class="amount-col">Amount (K)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total Sales / Revenue (GST-exclusive)</td>
+                    <td class="amount-col">{{ return.total_sales_excl|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Output GST (10% of Sales)</strong></td>
+                    <td class="amount-col" style="background:#f9f9f9">{{ return.total_output_gst|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>Total Purchases / Expenses (GST-exclusive)</td>
+                    <td class="amount-col">{{ return.total_purchases_excl|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Input Tax Credit (10% of Purchases)</strong></td>
+                    <td class="amount-col" style="background:#f9f9f9">{{ return.total_input_gst|floatformat:2 }}</td>
+                </tr>
+                <tr style="background:#eee; font-weight:bold">
+                    <td>{% if return.refund_due %}Net GST Refund Claimed{% else %}Net GST Payable to IRC{% endif %}</td>
+                    <td class="amount-col">K{{ return.net_gst_payable|floatformat:2 }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="declaration-box">
+            <div style="font-weight:bold; margin-bottom:10px">3. Declaration</div>
+            I, ________________________________, being the authorized person for {{ return.business.business_name }}, 
+            declare that this return is true and correct in every detail. I understand that penalties apply for 
+            false or misleading statements.
+            
+            <div class="sig-line">
+                <div class="sig-item">Signature</div>
+                <div class="sig-item">Date</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Generated by PNG Compliance Hub 2026 on {% now "d F Y H:i" %}<br>
+            Reference: GST-RET-{{ return.pk }}-{{ return.period_start|date:"Ym" }}
+        </div>
+    </div>
+</body>
+</html>

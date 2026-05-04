@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}SWT Returns — PNG Compliance Hub 2026{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+  <div>
+    <div class="page-title">📋 SWT Returns</div>
+    <div class="page-subtitle">Monthly salary & wages tax remittance history</div>
+  </div>
+</div>
+
+<div class="glass-card">
+  {% if returns %}
+    <table class="table-glass">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th style="text-align:right">Total Gross</th>
+          <th style="text-align:right">Total SWT</th>
+          <th>Status</th>
+          <th style="text-align:right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in returns %}
+        <tr>
+          <td class="fw-600">{{ r.month|date:"F Y" }}</td>
+          <td style="text-align:right">K{{ r.total_gross|floatformat:2 }}</td>
+          <td style="text-align:right" class="text-warn fw-700">K{{ r.total_swt|floatformat:2 }}</td>
+          <td>
+            <span class="badge {% if r.status == 'PAID' %}badge-success{% elif r.status == 'OVERDUE' %}badge-danger{% else %}badge-info{% endif %}">
+              {{ r.get_status_display }}
+            </span>
+          </td>
+          <td style="text-align:right">
+            <a href="{% url 'reports:swt_return_pdf' r.pk %}" class="btn-ghost" style="padding:4px 8px;font-size:11px">Download PDF</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div style="text-align:center;padding:40px 0;color:var(--text-muted)">
+      <div style="font-size:40px;margin-bottom:12px">📄</div>
+      <p>No SWT returns have been generated yet.</p>
+      <div class="small">SWT returns are generated when payroll is processed for the period.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

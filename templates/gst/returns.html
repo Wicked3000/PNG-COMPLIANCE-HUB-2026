@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}GST Returns — PNG Compliance Hub 2026{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+  <div>
+    <div class="page-title">📋 GST Returns (GSTS65A)</div>
+    <div class="page-subtitle">Historical filing records and payment status</div>
+  </div>
+</div>
+
+<div class="glass-card">
+  {% if returns %}
+    <table class="table-glass">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th style="text-align:right">Sales (Excl)</th>
+          <th style="text-align:right">Net GST</th>
+          <th>Status</th>
+          <th style="text-align:right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in returns %}
+        <tr>
+          <td class="fw-600">{{ r.period_start|date:"M Y" }}</td>
+          <td style="text-align:right">K{{ r.total_sales_excl|floatformat:2 }}</td>
+          <td style="text-align:right" class="text-warn fw-700">K{{ r.net_gst_payable|floatformat:2 }}</td>
+          <td>
+            <span class="badge {% if r.status == 'PAID' %}badge-success{% elif r.status == 'OVERDUE' %}badge-danger{% else %}badge-info{% endif %}">
+              {{ r.get_status_display }}
+            </span>
+          </td>
+          <td style="text-align:right">
+            <a href="{% url 'reports:gst_return_pdf' r.pk %}" class="btn-ghost" style="padding:4px 8px;font-size:11px">Download PDF</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div style="text-align:center;padding:40px 0;color:var(--text-muted)">
+      <div style="font-size:40px;margin-bottom:12px">📄</div>
+      <p>No GST returns have been generated yet.</p>
+      <div class="small">Returns are generated automatically at the end of each tax period.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

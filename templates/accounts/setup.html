@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Business — PNG Compliance Hub 2026</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/theme.css">
+</head>
+<body>
+<div class="auth-page" style="align-items:flex-start;padding-top:40px">
+  <div class="auth-card" style="max-width:520px">
+    <div class="auth-logo"><div style="font-size:36px">🏢</div></div>
+    <div class="auth-title">Set Up Your Business</div>
+    <div class="auth-sub">This information is used to calculate your IRC tax obligations.</div>
+
+    <form method="post" action="{% url 'accounts:setup' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Business / Trade Name *</label>
+        <input type="text" name="business_name" class="form-control" required placeholder="e.g. Joel's Trade Store">
+      </div>
+      <div class="form-group">
+        <label class="form-label">IRC Tax Identification Number (TIN)</label>
+        <input type="text" name="tin" class="form-control" placeholder="e.g. 1-000-123-456">
+        <small class="small text-muted" style="margin-top:4px;display:block">Leave blank if not yet registered with IRC.</small>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Province</label>
+          <select name="province" class="form-control form-select">
+            {% for code, name in provinces %}
+              <option value="{{ code }}">{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Industry</label>
+          <select name="industry" class="form-control form-select">
+            {% for code, name in industries %}
+              <option value="{{ code }}">{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" name="phone" class="form-control" placeholder="+675 7XXX XXXX">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estimated Annual Turnover (K)</label>
+        <input type="number" name="annual_turnover" class="form-control" placeholder="0" min="0" step="100">
+        <small class="small text-muted" style="margin-top:4px;display:block">Used to determine GST/SBT eligibility.</small>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" name="gst_registered" id="gst_registered" style="width:18px;height:18px;accent-color:var(--accent-green)">
+        <label for="gst_registered" class="form-label" style="margin:0">My business is GST registered with IRC</label>
+      </div>
+      <button type="submit" class="btn-accent w-100" style="justify-content:center;margin-top:8px">
+        Save & Enter Dashboard →
+      </button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

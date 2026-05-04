@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Add Employee — PNG Compliance Hub 2026{% endblock %}
+{% block content %}
+<div class="top-bar">
+  <div><div class="page-title"><i class="bi bi-people-fill text-accent"></i> Manage Employees</div>
+  <div class="page-subtitle">SWT Payroll — {{ business.business_name }}</div></div>
+  <a href="{% url 'swt:dashboard' %}" class="btn-ghost">← Back</a>
+</div>
+
+<!-- Add Form -->
+<div style="max-width:540px;margin:0 auto 24px">
+  <div class="glass-card">
+    <div style="font-size:15px;font-weight:700;margin-bottom:16px"><i class="bi bi-person-plus-fill"></i> Add New Employee</div>
+    <form method="post" action="{% url 'swt:employees' %}">
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="full_name" class="form-control" required placeholder="Employee full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Position / Role</label>
+          <input type="text" name="position" class="form-control" placeholder="e.g. Cashier">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Annual Salary (K)</label>
+          <input type="number" name="annual_salary" class="form-control" required placeholder="e.g. 24000" min="0" step="100">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Frequency</label>
+          <select name="payment_frequency" class="form-control form-select">
+            <option value="FORTNIGHTLY">Fortnightly</option>
+            <option value="WEEKLY">Weekly</option>
+            <option value="MONTHLY">Monthly</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TIN (Employee)</label>
+          <input type="text" name="tin" class="form-control" placeholder="Optional">
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:24px">
+          <input type="checkbox" name="is_resident" id="is_resident" checked style="width:18px;height:18px;accent-color:var(--accent-green)">
+          <label for="is_resident" class="form-label" style="margin:0">PNG Resident</label>
+        </div>
+      </div>
+      <button type="submit" class="btn-accent w-100" style="justify-content:center;margin-top:8px"><i class="bi bi-plus-lg"></i> Add Employee</button>
+    </form>
+  </div>
+</div>
+
+<!-- Employee List -->
+<div class="glass-card">
+  <div style="font-size:15px;font-weight:700;margin-bottom:16px">All Employees ({{ employees.count }})</div>
+  {% if employees %}
+    <table class="table-glass">
+      <thead><tr><th>Name</th><th>Position</th><th>Annual Salary</th><th>Frequency</th><th>Resident</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for emp in employees %}
+        <tr>
+          <td class="fw-600">{{ emp.full_name }}</td>
+          <td class="text-muted small">{{ emp.position|default:"—" }}</td>
+          <td class="fw-600">K{{ emp.annual_salary|floatformat:2 }}</td>
+          <td><span class="badge badge-info">{{ emp.get_payment_frequency_display }}</span></td>
+          <td>{% if emp.is_resident %}<span class="badge badge-success"><i class="bi bi-check-lg"></i></span>{% else %}<span class="badge badge-muted"><i class="bi bi-x-lg"></i></span>{% endif %}</td>
+          <td>{% if emp.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-muted">Inactive</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div style="text-align:center;padding:32px;color:var(--text-muted)">No employees yet. Add one above.</div>
+  {% endif %}
+</div>
+{% endblock %}

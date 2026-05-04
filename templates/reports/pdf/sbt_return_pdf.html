@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SBT Annual Declaration - {{ return.business.business_name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 11pt;
+            color: #111;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+        .header {
+            border-bottom: 4px solid #000;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .header-main h1 {
+            margin: 0;
+            font-size: 22pt;
+            letter-spacing: -1px;
+        }
+        .form-name {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #444;
+        }
+        .tax-year-badge {
+            background: #000;
+            color: white;
+            padding: 10px 20px;
+            font-size: 18pt;
+            font-weight: 900;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-header {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10pt;
+            color: #555;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .data-label {
+            font-size: 9pt;
+            color: #666;
+            margin-bottom: 2px;
+        }
+        .data-value {
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .calculation-box {
+            background: #f8f9fa;
+            border: 2px solid #000;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .total-liability {
+            font-size: 16pt;
+            border-top: 2px solid #000;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-weight: 800;
+        }
+        .declaration-text {
+            font-style: italic;
+            font-size: 10pt;
+            background: #fff;
+            padding: 15px;
+            border-left: 5px solid #000;
+        }
+        @media screen {
+            .print-actions {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #00E5A0;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                z-index: 1000;
+            }
+            .print-btn {
+                background: #060D1A;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            body {
+                background: #f0f2f5;
+                padding: 40px;
+            }
+            .page-container {
+                background: white;
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0 auto;
+                padding: 2cm;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-actions">
+        <button class="print-btn" onclick="window.print()">🖨️ Download PDF / Print</button>
+    </div>
+
+    <div class="page-container">
+        <div class="header">
+            <div class="header-main">
+                <div class="form-name">Small Business Tax (SBT)</div>
+                <h1>Annual Declaration</h1>
+            </div>
+            <div class="tax-year-badge">{{ return.tax_year }}</div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">Business Information</div>
+            <div class="grid">
+                <div>
+                    <div class="data-label">Registered Name</div>
+                    <div class="data-value">{{ return.business.business_name }}</div>
+                </div>
+                <div>
+                    <div class="data-label">TIN</div>
+                    <div class="data-value">{{ return.business.tin }}</div>
+                </div>
+                <div>
+                    <div class="data-label">Industry Sector</div>
+                    <div class="data-value">{{ return.business.get_industry_display }}</div>
+                </div>
+                <div>
+                    <div class="data-label">Location / Province</div>
+                    <div class="data-value">{{ return.business.get_province_display }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">Income Declaration</div>
+            <p>I declare that the gross annual turnover for the period 1 Jan {{ return.tax_year }} to 31 Dec {{ return.tax_year }} is:</p>
+            <div style="font-size:24pt; font-weight:900; text-align:center; margin:20px 0;">
+                K{{ return.annual_turnover|floatformat:2 }}
+            </div>
+        </div>
+
+        <div class="calculation-box">
+            <div class="section-header" style="border:none">SBT Calculation Details</div>
+            <div class="calc-row">
+                <span>Tax Type:</span>
+                <span>{{ return.get_sbt_type_display }}</span>
+            </div>
+            <div class="calc-row">
+                <span>Calculation Basis:</span>
+                <span>{% if return.sbt_type == 'FLAT' %}K400 Flat Fee{% else %}2.0% of Turnover{% endif %}</span>
+            </div>
+            <div class="calc-row total-liability">
+                <span>Total SBT Payable:</span>
+                <span>K{{ return.sbt_liability|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">Final Declaration</div>
+            <div class="declaration-text">
+                "I certify that the above information is a true statement of my business income. I understand that I am 
+                required to keep records of my turnover for a period of 7 years and that IRC may audit these records."
+            </div>
+        </div>
+
+        <div style="margin-top:60px; display:flex; justify-content:space-between">
+            <div style="border-top:1px solid #000; width:250px; text-align:center; padding-top:5px">Authorized Signature</div>
+            <div style="border-top:1px solid #000; width:150px; text-align:center; padding-top:5px">Date</div>
+        </div>
+
+        <div style="margin-top:80px; text-align:center; font-size:8pt; color:#999; border-top:1px solid #eee; padding-top:10px">
+            Internal Revenue Commission — Small Business Tax Division<br>
+            Generated via PNG Compliance Hub 2026 — Ref ID: SBT-{{ return.pk }}
+        </div>
+    </div>
+</body>
+</html>

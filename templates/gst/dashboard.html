@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}GST Ledger — PNG Compliance Hub 2026{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+  <div>
+    <div class="page-title"><i class="bi bi-receipt"></i> GST Dashboard</div>
+    <div class="page-subtitle">Goods & Services Tax — 10% Rate · {{ business.business_name }}</div>
+  </div>
+  <div class="top-actions">
+    <a href="{% url 'gst:add_entry' %}" class="btn-accent"><i class="bi bi-plus-lg"></i> Log Entry</a>
+    <a href="{% url 'gst:calculator' %}" class="btn-ghost"><i class="bi bi-calculator"></i> Calculator</a>
+  </div>
+</div>
+
+<!-- GST Summary Cards -->
+<div class="stat-grid">
+  <div class="glass-card">
+    <div class="card-icon green"><i class="bi bi-box-arrow-up"></i></div>
+    <div class="card-label">Output GST (Sales)</div>
+    <div class="card-value warn">K{{ gst_data.output_gst|floatformat:2 }}</div>
+    <div class="card-sub">10% of K{{ gst_data.sales_amount|floatformat:2 }} in sales</div>
+  </div>
+  <div class="glass-card">
+    <div class="card-icon teal"><i class="bi bi-box-arrow-in-down"></i></div>
+    <div class="card-label">Input Tax Credit</div>
+    <div class="card-value accent">K{{ gst_data.input_gst|floatformat:2 }}</div>
+    <div class="card-sub">10% of K{{ gst_data.purchases_amount|floatformat:2 }} purchases</div>
+  </div>
+  <div class="glass-card">
+    <div class="card-icon {% if gst_data.gst_payable > 0 %}warn{% else %}green{% endif %}"><i class="bi bi-wallet2"></i></div>
+    <div class="card-label">Net GST {% if gst_data.refund_due %}Refund{% else %}Payable{% endif %}</div>
+    <div class="card-value {% if gst_data.gst_payable > 0 %}warn{% else %}accent{% endif %}">
+      K{{ gst_data.gst_payable|floatformat:2 }}{% if gst_data.refund_due %} CR{% endif %}
+    </div>
+    <div class="card-sub">Output GST − Input Tax Credit</div>
+  </div>
+  <div class="glass-card">
+    <div class="card-icon blue"><i class="bi bi-journal-check"></i></div>
+    <div class="card-label">GST Returns Filed</div>
+    <div class="card-value accent">{{ business.gst_returns.count }}</div>
+    <div class="card-sub"><a href="{% url 'gst:returns' %}" class="text-accent">View all returns →</a></div>
+  </div>
+</div>
+
+<!-- ITC Explainer -->
+<div class="glass-card mb-4" style="background:rgba(0,229,160,0.05);border-color:rgba(0,229,160,0.15)">
+  <div style="display:flex;align-items:flex-start;gap:16px">
+    <div style="font-size:28px"><i class="bi bi-info-circle text-accent"></i></div>
+    <div>
+      <div style="font-weight:700;margin-bottom:4px">Input Tax Credit (ITC) — How It Works</div>
+      <div class="small text-muted">
+        You collect <strong style="color:var(--accent-warn)">Output GST (10%)</strong> on every sale.
+        You can claim back <strong style="color:var(--accent-green)">Input GST</strong> on business purchases.
+        You only remit the <strong style="color:var(--text-primary)">difference</strong> to IRC.
+        Formula: <code style="color:var(--accent-green)">Net GST = Output GST − Input Tax Credits</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Entries -->
+<div class="glass-card">
+  <div class="d-flex align-center justify-between mb-4">
+    <div style="font-size:15px;font-weight:700">Recent Ledger Entries (This Month)</div>
+    <a href="{% url 'gst:ledger' %}" class="btn-ghost" style="padding:6px 12px;font-size:12px">Full Ledger</a>
+  </div>
+
+  {% if entries %}
+    <table class="table-glass">
+      <thead>
+        <tr>
+          <th>Date</th><th>Description</th><th>Type</th>
+          <th style="text-align:right">Excl. GST</th>
+          <th style="text-align:right">GST (10%)</th>
+          <th style="text-align:right">Incl. GST</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in entries %}
+        <tr>
+          <td class="small text-muted">{{ entry.date|date:"d M" }}</td>
+          <td>{{ entry.description }}</td>
+          <td>
+            <span class="badge {% if entry.entry_type == 'SALE' %}badge-success{% else %}badge-warn{% endif %}">
+              {{ entry.get_entry_type_display }}
+            </span>
+          </td>
+          <td style="text-align:right;font-weight:600">K{{ entry.amount_excl_gst|floatformat:2 }}</td>
+          <td style="text-align:right" class="text-accent">K{{ entry.gst_amount|floatformat:2 }}</td>
+          <td style="text-align:right" class="fw-700">K{{ entry.amount_incl_gst|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div style="text-align:center;padding:40px 0;color:var(--text-muted)">
+      <div style="font-size:40px;margin-bottom:12px"><i class="bi bi-receipt"></i></div>
+      <p>No ledger entries this month.</p>
+      <a href="{% url 'gst:add_entry' %}" class="btn-accent" style="margin-top:12px;display:inline-flex"><i class="bi bi-plus-lg"></i> Add First Entry</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
