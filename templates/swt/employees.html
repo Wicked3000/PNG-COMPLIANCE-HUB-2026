@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
-{% block title %}Add Employee — PNG Compliance Hub 2026{% endblock %}
+{% block title %}Add Employee - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 {% block content %}
 <div class="top-bar">
   <div><div class="page-title"><i class="bi bi-people-fill text-accent"></i> Manage Employees</div>
-  <div class="page-subtitle">SWT Payroll — {{ business.business_name }}</div></div>
+  <div class="page-subtitle">SWT Payroll - {{ business.business_name }}</div></div>
   <a href="{% url 'swt:dashboard' %}" class="btn-ghost">← Back</a>
 </div>
 
@@ -24,7 +24,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Annual Salary (K)</label>
-          <input type="number" name="annual_salary" class="form-control" required placeholder="e.g. 24000" min="0" step="100">
+          <input type="number" name="annual_salary" class="form-control" required placeholder="e.g. K24,000" min="0" step="100">
         </div>
         <div class="form-group">
           <label class="form-label">Payment Frequency</label>
@@ -58,8 +58,8 @@
         {% for emp in employees %}
         <tr>
           <td class="fw-600">{{ emp.full_name }}</td>
-          <td class="text-muted small">{{ emp.position|default:"—" }}</td>
-          <td class="fw-600">K{{ emp.annual_salary|floatformat:2 }}</td>
+          <td class="text-muted small">{{ emp.position|default:"-" }}</td>
+          <td class="fw-600">K{{ emp.annual_salary|floatformat:'2g' }}</td>
           <td><span class="badge badge-info">{{ emp.get_payment_frequency_display }}</span></td>
           <td>{% if emp.is_resident %}<span class="badge badge-success"><i class="bi bi-check-lg"></i></span>{% else %}<span class="badge badge-muted"><i class="bi bi-x-lg"></i></span>{% endif %}</td>
           <td>{% if emp.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-muted">Inactive</span>{% endif %}</td>

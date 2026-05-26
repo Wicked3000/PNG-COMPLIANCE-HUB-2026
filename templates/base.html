@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#060D1A">
-  <meta name="description" content="PNG Compliance Hub 2026 — IRC Tax Compliance for PNG MSMEs">
-  <title>{% block title %}PNG Compliance Hub 2026{% endblock %}</title>
+  <meta name="description" content="{{ APP_NAME }} {{ TAX_YEAR }} - IRC Tax Compliance for PNG MSMEs">
+  <title>{% block title %}{{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}</title>
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="/static/manifest.json">
@@ -16,13 +16,21 @@
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <!-- Oceania Dark Theme -->
-  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/theme.css?v=2.1">
 
   {% block extra_css %}{% endblock %}
 </head>
 <body>
 
 {% if user.is_authenticated %}
+<!-- ═══ Impersonation Ghost Banner ═══════════════════════════ -->
+{% if request.is_impersonating %}
+<div style="background-color: #721c24; color: #f8d7da; padding: 12px; text-align: center; font-weight: bold; border-bottom: 2px solid #f5c6cb; z-index: 9999; position: relative;">
+  🕵️ Secret Mode: You are secretly viewing the dashboard as {{ user.username }}. 
+  <a href="{% url 'impersonate_stop' %}" style="color: #fff; text-decoration: underline; margin-left: 15px; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;">Exit Secret Mode</a>
+</div>
+{% endif %}
+
 <!-- ═══ App Shell ═══════════════════════════════════════════════ -->
 <div class="app-shell">
 
@@ -30,10 +38,10 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <a href="{% url 'dashboard:home' %}" class="brand">
-        <div class="brand-icon"><i class="bi bi-globe-asia-australia"></i></div>
+        <div class="brand-icon" style="display:flex;align-items:center;background-color:white;border-radius:50%;padding:4px;box-shadow:0 0 10px rgba(0,229,160,0.5);margin-right:8px"><img src="/static/img/PNG-COM-LOGO.svg" alt="Logo" style="height:48px;width:48px;clip-path:circle(43%);object-fit:cover;"></div>
         <div class="brand-text">
           <div class="brand-title">PNG Compliance Hub</div>
-          <div class="brand-sub">2026 Tax Year</div>
+          <div class="brand-sub">{{ TAX_YEAR }} Tax Year</div>
         </div>
       </a>
     </div>
@@ -103,7 +111,7 @@
     <!-- Mobile Top Bar -->
     <div class="d-flex align-center justify-between mb-4 d-lg-none">
       <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">☰</button>
-      <span class="brand-sub" style="color:var(--accent-green)">PNG Compliance Hub</span>
+      <div style="display:flex;align-items:center;background-color:white;border-radius:50%;padding:3px;box-shadow:0 0 8px rgba(0,229,160,0.5)"><img src="/static/img/PNG-COM-LOGO.svg" alt="Logo" style="height:36px;width:36px;clip-path:circle(43%);object-fit:cover;"></div>
       <div style="width:36px"></div>
     </div>
 
@@ -126,7 +134,7 @@
 
 </div><!-- /app-shell -->
 
-<!-- ── FAB — Quick Log Sale ──────────────────────────────────── -->
+<!-- ── FAB - Quick Log Sale ──────────────────────────────────── -->
 <button class="fab" title="Quick Log Sale"
   hx-get="{% url 'dashboard:quick_log_sale' %}"
   hx-target="#fab-modal-body"
@@ -160,6 +168,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 
 <script src="/static/js/indexeddb_manager.js"></script>
+<script src="/static/js/custom_select.js?v=1.1"></script>
 <script>
 // ── HTMX CSRF Configuration ──────────────────────────────────
 document.body.addEventListener('htmx:configRequest', (event) => {

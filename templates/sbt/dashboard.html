@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
-{% block title %}Small Business Tax — PNG Compliance Hub 2026{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}Small Business Tax - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 
 {% block content %}
 <div class="top-bar">
   <div>
     <div class="page-title"><i class="bi bi-shop-window"></i> Small Business Tax</div>
-    <div class="page-subtitle">SBT — Annual turnover-based tax for businesses under K250,000</div>
+    <div class="page-subtitle">SBT - Annual turnover-based tax for businesses under K250,000</div>
   </div>
   <div class="top-actions">
     <a href="{% url 'sbt:calculator' %}" class="btn-ghost"><i class="bi bi-graph-up-arrow"></i> Calculator</a>
@@ -17,24 +17,24 @@
 <div class="glass-card mb-4" style="{% if sbt_data.is_eligible %}border-color:rgba(0,229,160,0.2){% else %}border-color:rgba(255,77,109,0.2){% endif %}">
   <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px">
     <div>
-      <div class="card-label">Your SBT Status — 2026</div>
+      <div class="card-label">Your SBT Status - {{ TAX_YEAR }}</div>
       <div style="font-size:28px;font-weight:800;margin:8px 0;color:{% if sbt_data.is_eligible %}var(--accent-green){% else %}var(--accent-danger){% endif %}">
         {% if not sbt_data.is_eligible %}Not Eligible
         {% elif sbt_data.sbt_type == 'Flat Fee' %}K400 Flat Fee
-        {% else %}K{{ sbt_data.sbt_liability|floatformat:2 }} (2% of Turnover){% endif %}
+        {% else %}K{{ sbt_data.sbt_liability|floatformat:'2g' }} (2% of Turnover){% endif %}
       </div>
       <div class="small text-muted">{{ sbt_data.note }}</div>
     </div>
     <div style="text-align:center;padding:20px;background:var(--glass-bg);border-radius:12px;border:1px solid var(--glass-border)">
       <div class="small text-muted">Est. Turnover</div>
-      <div style="font-size:20px;font-weight:700">K{{ business.annual_turnover_estimate|floatformat:0 }}</div>
+      <div style="font-size:20px;font-weight:700">K{{ business.annual_turnover_estimate|floatformat:'0g' }}</div>
     </div>
   </div>
 </div>
 
 <!-- SBT Bands Reference -->
 <div class="glass-card mb-4">
-  <div style="font-size:15px;font-weight:700;margin-bottom:16px"><i class="bi bi-bar-chart"></i> 2026 SBT Rate Bands</div>
+  <div style="font-size:15px;font-weight:700;margin-bottom:16px"><i class="bi bi-bar-chart"></i> {{ TAX_YEAR }} SBT Rate Bands</div>
   <table class="table-glass">
     <thead><tr><th>Annual Turnover</th><th>Tax</th><th>Your Status</th></tr></thead>
     <tbody>
@@ -50,7 +50,7 @@
       </tr>
       <tr style="{% if not sbt_data.is_eligible %}background:rgba(255,77,109,0.05){% endif %}">
         <td>Above K250,000</td>
-        <td class="text-muted">Not eligible — standard GST/Income Tax applies</td>
+        <td class="text-muted">Not eligible - standard GST/Income Tax applies</td>
         <td>{% if not sbt_data.is_eligible %}<span class="badge badge-danger">● Your Band</span>{% endif %}</td>
       </tr>
     </tbody>
@@ -70,8 +70,8 @@
         {% for d in declarations %}
         <tr>
           <td class="fw-700">{{ d.tax_year }}</td>
-          <td>K{{ d.annual_turnover|floatformat:2 }}</td>
-          <td class="fw-700 text-warn">K{{ d.sbt_liability|floatformat:2 }}</td>
+          <td>K{{ d.annual_turnover|floatformat:'2g' }}</td>
+          <td class="fw-700 text-warn">K{{ d.sbt_liability|floatformat:'2g' }}</td>
           <td class="small text-muted">{{ d.get_sbt_type_display }}</td>
           <td><span class="badge badge-{% if d.status == 'PAID' %}success{% elif d.status == 'OVERDUE' %}danger{% elif d.status == 'SUBMITTED' %}info{% else %}muted{% endif %}">{{ d.get_status_display }}</span></td>
         </tr>
@@ -82,7 +82,7 @@
     <div style="text-align:center;padding:40px 0;color:var(--text-muted)">
       <div style="font-size:40px;margin-bottom:12px"><i class="bi bi-journal-text"></i></div>
       <p>No SBT declarations filed yet.</p>
-      <a href="{% url 'sbt:declare' %}" class="btn-accent" style="margin-top:12px;display:inline-flex"><i class="bi bi-journal-check"></i> File 2026 Declaration</a>
+      <a href="{% url 'sbt:declare' %}" class="btn-accent" style="margin-top:12px;display:inline-flex"><i class="bi bi-journal-check"></i> File {{ TAX_YEAR }} Declaration</a>
     </div>
   {% endif %}
 </div>

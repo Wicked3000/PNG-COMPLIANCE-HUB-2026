@@ -1,4 +1,4 @@
-"""Reports App — URL Configuration"""
+﻿"""Reports App - URL Configuration"""
 
 from django.urls import path
 from . import views

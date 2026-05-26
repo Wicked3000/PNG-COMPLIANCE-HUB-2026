@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -168,7 +168,7 @@
             <div class="section-header">Income Declaration</div>
             <p>I declare that the gross annual turnover for the period 1 Jan {{ return.tax_year }} to 31 Dec {{ return.tax_year }} is:</p>
             <div style="font-size:24pt; font-weight:900; text-align:center; margin:20px 0;">
-                K{{ return.annual_turnover|floatformat:2 }}
+                K{{ return.annual_turnover|floatformat:'2g' }}
             </div>
         </div>
 
@@ -184,7 +184,7 @@
             </div>
             <div class="calc-row total-liability">
                 <span>Total SBT Payable:</span>
-                <span>K{{ return.sbt_liability|floatformat:2 }}</span>
+                <span>K{{ return.sbt_liability|floatformat:'2g' }}</span>
             </div>
         </div>
 
@@ -202,8 +202,8 @@
         </div>
 
         <div style="margin-top:80px; text-align:center; font-size:8pt; color:#999; border-top:1px solid #eee; padding-top:10px">
-            Internal Revenue Commission — Small Business Tax Division<br>
-            Generated via PNG Compliance Hub 2026 — Ref ID: SBT-{{ return.pk }}
+            Internal Revenue Commission - Small Business Tax Division<br>
+            Generated via PNG Compliance Hub {% now "Y" %} - Ref ID: SBT-{{ return.pk }}
         </div>
     </div>
 </body>

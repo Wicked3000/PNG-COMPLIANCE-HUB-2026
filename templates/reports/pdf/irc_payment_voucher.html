@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <style>
@@ -15,7 +15,7 @@
 </head>
 <body>
     <div class="voucher">
-        <div class="form-id">G-FORM 2026</div>
+        <div class="form-id">G-FORM {% now "Y" %}</div>
         <div class="header">
             <div class="irc-logo">INTERNAL REVENUE COMMISSION</div>
             <div style="font-size:14px; margin-top:5px;">PAYMENT VOUCHER (TAX)</div>
@@ -44,7 +44,7 @@
 
         <div class="row" style="margin-top:30px;">
             <div class="label" style="font-size:16px;">AMOUNT TO PAY:</div>
-            <div class="value" style="font-size:24px; font-weight:bold;">K{{ amount|floatformat:2 }}</div>
+            <div class="value" style="font-size:24px; font-weight:bold;">K{{ amount|floatformat:'2g' }}</div>
         </div>
 
         <div style="margin-top:40px; font-size:10px; border-top:1px solid #ccc; padding-top:10px;">

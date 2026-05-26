@@ -1,6 +1,6 @@
-"""
+﻿"""
 PNG Compliance Hub 2026
-Django Settings — Development & Production combined
+Django Settings - Development & Production combined
 """
 
 from pathlib import Path
@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django_htmx',
 
     # PNG Compliance Hub Apps
+    'core',
     'accounts',
     'dashboard',
     'gst',
@@ -51,6 +52,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'core.middleware.ImpersonationMiddleware',
+    'core.middleware.RoleSeparationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',  # HTMX request detection
 ]
@@ -68,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.global_settings',
             ],
         },
     },
@@ -102,6 +106,7 @@ LANGUAGE_CODE = 'en-au'
 TIME_ZONE = 'Pacific/Port_Moresby'
 USE_I18N = True
 USE_TZ = True
+USE_THOUSAND_SEPARATOR = True
 
 # ─── Static Files ────────────────────────────────────────────────────────────
 STATIC_URL = '/static/'
@@ -113,8 +118,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ─── PNG Compliance Hub — App Settings ───────────────────────────────────────
-PNG_TAX_YEAR = 2026
+# ─── PNG Compliance Hub - App Settings ───────────────────────────────────────
 GST_RATE = 0.10  # 10% standard rate
 SBT_THRESHOLD = 250_000  # SBT only for turnover < K250,000
 SBT_FLAT_FEE_THRESHOLD = 50_000  # Below K50k → K400 flat

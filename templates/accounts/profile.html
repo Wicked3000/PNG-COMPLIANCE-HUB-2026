@@ -1,12 +1,13 @@
-{% extends 'base.html' %}
-{% block title %}Business Profile — PNG Compliance Hub 2026{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}Business Profile - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 {% block content %}
 <div class="top-bar">
   <div><div class="page-title"><i class="bi bi-building"></i> Business Profile</div>
   <div class="page-subtitle">Your IRC registration & tax settings</div></div>
 </div>
-<div style="max-width:600px">
-  <div class="glass-card">
+<div class="row g-4 align-items-stretch">
+  <div class="col-lg-6 col-md-12">
+    <div class="glass-card h-100">
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
       <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,var(--accent-green),var(--accent-teal));display:flex;align-items:center;justify-content:center;font-size:28px;"><i class="bi bi-shop"></i></div>
       <div>
@@ -18,16 +19,56 @@
       <tbody>
         <tr><td class="text-muted small">Province</td><td class="fw-600">{{ business.get_province_display }}</td></tr>
         <tr><td class="text-muted small">Industry</td><td class="fw-600">{{ business.get_industry_display }}</td></tr>
-        <tr><td class="text-muted small">Phone</td><td class="fw-600">{{ business.phone|default:"—" }}</td></tr>
+        <tr><td class="text-muted small">Phone</td><td class="fw-600">{{ business.phone|default:"-" }}</td></tr>
         <tr><td class="text-muted small">GST Registered</td><td>{% if business.gst_registered %}<span class="badge badge-success"><i class="bi bi-check-circle-fill"></i> Yes</span>{% else %}<span class="badge badge-muted">No</span>{% endif %}</td></tr>
         <tr><td class="text-muted small">SBT Eligible</td><td>{% if business.sbt_eligible %}<span class="badge badge-success"><i class="bi bi-check-circle-fill"></i> Yes</span>{% else %}<span class="badge badge-danger"><i class="bi bi-x-circle-fill"></i> No</span>{% endif %}</td></tr>
-        <tr><td class="text-muted small">Est. Annual Turnover</td><td class="fw-600">K{{ business.annual_turnover_estimate|floatformat:2 }}</td></tr>
-        <tr><td class="text-muted small">Member Since</td><td class="small">{{ business.created_at|date:"j F Y" }}</td></tr>
+        <tr><td class="text-muted small">Est. Annual Turnover</td><td class="fw-600">K{{ business.annual_turnover_estimate|floatformat:'2g' }}</td></tr>
       </tbody>
     </table>
+    </div>
   </div>
 
-  <div class="glass-card" style="margin-top:24px">
+  <!-- Phase 3: Enterprise Settings -->
+  <div class="col-lg-6 col-md-12">
+    <div class="glass-card h-100">
+    <div style="font-size:18px;font-weight:700;margin-bottom:16px"><i class="bi bi-gear text-accent"></i> System Settings</div>
+    
+    <form method="post" action="{% url 'accounts:profile' %}">
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Active Role</label>
+          <select name="role" class="form-control form-select">
+            <option value="OWNER" {% if business.role == 'OWNER' %}selected{% endif %}>Business Owner (Admin)</option>
+            <option value="STAFF" {% if business.role == 'STAFF' %}selected{% endif %}>Compliance Staff</option>
+            <option value="ACCOUNTANT" {% if business.role == 'ACCOUNTANT' %}selected{% endif %}>External Accountant</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Alert Method</label>
+          <select name="notify_method" class="form-control form-select">
+            <option value="BOTH" {% if business.notify_method == 'BOTH' %}selected{% endif %}>Both SMS & Email</option>
+            <option value="SMS" {% if business.notify_method == 'SMS' %}selected{% endif %}>SMS (Mobile)</option>
+            <option value="EMAIL" {% if business.notify_method == 'EMAIL' %}selected{% endif %}>Email Only</option>
+            <option value="NONE" {% if business.notify_method == 'NONE' %}selected{% endif %}>No Notifications</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Remind me before deadlines (Days)</label>
+        <select name="notify_days_before" class="form-control form-select">
+          <option value="1" {% if business.notify_days_before == 1 %}selected{% endif %}>1 Day Before</option>
+          <option value="3" {% if business.notify_days_before == 3 %}selected{% endif %}>3 Days Before</option>
+          <option value="7" {% if business.notify_days_before == 7 %}selected{% endif %}>1 Week Before</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-ghost w-100" style="justify-content:center"><i class="bi bi-save"></i> Save Settings</button>
+    </form>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="glass-card">
     <div style="font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
       <i class="bi bi-fingerprint text-accent"></i> Biometric Security
       {% if webauthn_available %}
@@ -59,6 +100,7 @@
     <button onclick="registerBiometrics()" class="btn-accent w-100" style="justify-content:center" {% if not webauthn_available %}disabled{% endif %}>
       <i class="bi bi-plus-lg"></i> Register Biometric Device
     </button>
+    </div>
   </div>
 </div>
 

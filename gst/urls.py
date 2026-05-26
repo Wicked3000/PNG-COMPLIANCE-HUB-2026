@@ -1,4 +1,4 @@
-"""GST App — URL Configuration"""
+﻿"""GST App - URL Configuration"""
 
 from django.urls import path
 from . import views

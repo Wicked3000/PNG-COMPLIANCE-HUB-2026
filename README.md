@@ -5,7 +5,7 @@ PNG Compliance Hub 2026 is a premium, mobile-first SaaS platform designed to emp
 
 ---
 
-## 🚀 Core Features
+## Core Features
 
 ### 1. 2026 IRC Tax Engine
 Automated, legally-accurate calculations based on the 2026 PNG Tax Code:
@@ -30,7 +30,7 @@ Engineered for PNG's unique connectivity environment:
 
 ---
 
-## 🛠️ Technical Stack
+## Technical Stack
 
 *   **Backend**: Python 3.12+ & Django 6.0 (High-performance, secure MVC framework).
 *   **Frontend**: 
@@ -43,7 +43,7 @@ Engineered for PNG's unique connectivity environment:
 
 ---
 
-## 🧠 How the System Works
+## How the System Works
 
 ### 1. Business Onboarding
 Upon registration, users are guided through a **Business Profile Setup**. The system collects the business's TIN, industry, province, and estimated turnover. This data is used to automatically configure the tax engines (e.g., determining if the business should file GST or SBT).
@@ -68,7 +68,7 @@ At the end of a tax period (Monthly/Quarterly/Annual), the system aggregates led
 
 ---
 
-## ⚙️ Installation & Setup
+## Installation & Setup
 
 1.  **Clone the Repository**:
     ```bash
@@ -101,7 +101,24 @@ At the end of a tax period (Monthly/Quarterly/Annual), the system aggregates led
 
 ---
 
-## 📅 Road Map 2026
+## Administrator Access & Future Year Scaling
+
+The platform includes a built-in **Django Administration Panel** accessible at:
+👉 **[http://localhost:8000/admin/](http://localhost:8000/admin/)**
+
+**Why did we build this?**
+Originally, the platform was hardcoded to the 2026 tax year. However, tax compliance platforms must scale indefinitely. Tying the active year to the server clock is risky (e.g., users still filing 2026 returns in early 2027). 
+
+We implemented a **Database-Driven Tax Year Configuration** to solve this:
+1.  **Central Control**: The active tax year is stored securely in the database (`SystemSettings` model).
+2.  **No Code Changes Required**: When the new year arrives, an administrator simply logs into the Admin panel, navigates to **Core > System Settings**, and updates the year (e.g., from `2026` to `2027`).
+3.  **Instant Global Updates**: Thanks to global context processors, every title, subtitle, form replica, and calculator across the entire platform instantly re-labels itself to the new tax year without requiring a server restart. 
+
+*(Note: Mathematical tax rates and brackets are defined in code and still require manual updates if the PNG IRC alters the law).*
+
+---
+
+## Road Map 2026
 *   [ ] **API Integration**: Direct digital filing to IRC e-Tax portal (when available).
 *   [ ] **SMS Notifications**: Automated SMS reminders for tax due dates.
 *   [ ] **Multi-Currency Support**: For MSMEs engaging in regional export.

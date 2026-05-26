@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
-{% block title %}{{ guide.title }} — PNG Compliance Hub 2026{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}{{ guide.title }} - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 
 {% block content %}
 <div class="top-bar">
   <div>
     <div class="page-title"><i class="bi {{ guide.icon }} text-accent"></i> {{ guide.title }}</div>
-    <div class="page-subtitle">Official Guidance for the 2026 Tax Year</div>
+    <div class="page-subtitle">Official Guidance for the {{ TAX_YEAR }} Tax Year</div>
   </div>
   <a href="{% url 'tax_guide:index' %}" class="btn-ghost">← Back to Guides</a>
 </div>

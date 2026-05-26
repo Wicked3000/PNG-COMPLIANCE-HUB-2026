@@ -1,0 +1,18 @@
+﻿{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url={% url 'admin:login' %}">
+  <title>Logging Out... - {{ APP_NAME }} {{ TAX_YEAR }}</title>
+  <style>
+    body { background-color: #060D1A; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+  </style>
+</head>
+<body>
+  <div>Logging you out securely...</div>
+  <script>
+    window.location.href = "{% url 'admin:login' %}";
+  </script>
+</body>
+</html>

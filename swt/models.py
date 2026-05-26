@@ -1,4 +1,4 @@
-"""SWT App — Employee & Payroll Models"""
+﻿"""SWT App - Employee & Payroll Models"""
 
 from django.db import models
 from accounts.models import BusinessProfile
@@ -29,8 +29,13 @@ class Employee(models.Model):
         verbose_name_plural = 'Employees'
         ordering            = ['full_name']
 
+    @property
+    def employee_id(self):
+        """Auto-generated employee ID for display in payslips."""
+        return f'EMP-{self.pk:04d}'
+
     def __str__(self):
-        return f'{self.full_name} — K{self.annual_salary:,.2f}/yr'
+        return f'{self.full_name} - K{self.annual_salary:,.2f}/yr'
 
 
 class PayrollEntry(models.Model):
@@ -51,6 +56,28 @@ class PayrollEntry(models.Model):
         verbose_name        = 'Payroll Entry'
         verbose_name_plural = 'Payroll Entries'
         ordering            = ['-pay_period_end']
+
+    # ── Property aliases for template compatibility ──────────────────
+
+    @property
+    def pay_date(self):
+        """Alias: templates use pay_date, model stores pay_period_end."""
+        return self.pay_period_end
+
+    @property
+    def period_start(self):
+        """Alias: templates use period_start, model stores pay_period_start."""
+        return self.pay_period_start
+
+    @property
+    def gross_pay(self):
+        """Alias: templates use gross_pay, model stores gross_salary."""
+        return self.gross_salary
+
+    @property
+    def tax_withheld(self):
+        """Alias: templates use tax_withheld, model stores swt_withheld."""
+        return self.swt_withheld
 
     def __str__(self):
         return f'{self.employee.full_name} | {self.pay_period_end} | SWT: K{self.swt_withheld:,.2f}'

@@ -1,4 +1,4 @@
-"""Dashboard App — Views"""
+﻿"""Dashboard App - Views"""
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -10,6 +10,11 @@ from core.tax_engine import TaxCalculator
 
 
 from django.views.decorators.csrf import ensure_csrf_cookie
+
+@ensure_csrf_cookie
+def landing_page(request):
+    """Public SaaS Landing Page."""
+    return render(request, 'landing.html')
 
 @login_required
 @ensure_csrf_cookie
@@ -51,7 +56,7 @@ def dashboard(request):
     else:
         next_filing = today.replace(month=today.month + 1, day=21)
 
-    # Chart data — last 6 months revenue vs tax
+    # Chart data - last 6 months revenue vs tax
     chart_labels   = []
     chart_revenue  = []
     chart_tax      = []
@@ -76,9 +81,9 @@ def dashboard(request):
     # Combined filings (limit to 5)
     filings = []
     for r in GSTReturn.objects.filter(business=business).order_by('-period_end')[:3]:
-        filings.append({'type': 'GST', 'label': f'GST {r.period_start|date:"M Y"}', 'status': r.status, 'status_display': r.get_status_display(), 'date': r.period_end})
+        filings.append({'type': 'GST', 'label': f"GST {r.period_start.strftime('%b %Y')}", 'status': r.status, 'status_display': r.get_status_display(), 'date': r.period_end})
     for r in SWTReturn.objects.filter(business=business).order_by('-month')[:3]:
-        filings.append({'type': 'SWT', 'label': f'SWT {r.month|date:"M Y"}', 'status': r.status, 'status_display': r.get_status_display(), 'date': r.month})
+        filings.append({'type': 'SWT', 'label': f"SWT {r.month.strftime('%b %Y')}", 'status': r.status, 'status_display': r.get_status_display(), 'date': r.month})
     for r in SBTDeclaration.objects.filter(business=business).order_by('-tax_year')[:3]:
         filings.append({'type': 'SBT', 'label': f'SBT {r.tax_year}', 'status': r.status, 'status_display': r.get_status_display(), 'date': timezone.datetime(r.tax_year, 12, 31).date()})
     
@@ -131,7 +136,7 @@ def _compute_compliance_score(business) -> int:
 
 @login_required
 def quick_log_sale(request):
-    """HTMX endpoint — Quick Sale FAB modal submit."""
+    """HTMX endpoint - Quick Sale FAB modal submit."""
     from gst.forms import QuickSaleForm
     if request.method == 'POST':
         form = QuickSaleForm(request.POST)

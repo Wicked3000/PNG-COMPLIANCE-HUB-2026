@@ -254,6 +254,13 @@ body::before {
 }
 .btn-accent:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,229,160,0.5); filter: brightness(1.08); }
 .btn-accent:active { transform: translateY(0); }
+.btn-accent:disabled {
+  background: var(--glass-border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 
 .btn-ghost {
   background: var(--glass-bg); color: var(--text-secondary);
@@ -327,8 +334,64 @@ body::before {
   outline: none;
 }
 .form-control:focus { border-color: var(--accent-green); box-shadow: 0 0 0 3px rgba(0,229,160,0.1); }
-.form-control option { background: var(--bg-card); }
-.form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237B9BB5' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+.form-control::placeholder { color: rgba(255, 255, 255, 0.7); opacity: 1; }
+.form-control option, .form-select option { background: var(--bg-card); color: #ffffff; }
+.form-select {
+  appearance: none;
+  background-color: rgba(255,255,255,0.05);
+  color: var(--text-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%2300E5A0' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px;
+  padding-right: 40px;
+  cursor: pointer;
+  border: 1px solid var(--glass-border);
+}
+
+.form-select:focus { 
+  border-color: var(--accent-green); 
+  box-shadow: 0 0 0 3px rgba(0,229,160,0.1);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  outline: none;
+}
+
+/* ── Custom Dropdown Menus (Bootstrap) ─────────────────────── */
+.dropdown-menu {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  padding: 8px;
+  margin-top: 8px !important;
+  animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+  color: var(--text-secondary);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition);
+}
+
+.dropdown-item:hover, .dropdown-item.active {
+  background: rgba(0,229,160,0.1);
+  color: var(--accent-green);
+}
+
+.dropdown-item i { margin-right: 8px; font-size: 14px; opacity: 0.7; }
+
+.dropdown-divider { border-top: 1px solid var(--glass-border); margin: 6px 0; }
 
 /* ── Status Badges ─────────────────────────────────────────── */
 .badge {

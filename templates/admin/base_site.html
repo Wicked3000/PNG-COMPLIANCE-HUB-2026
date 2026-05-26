@@ -1,0 +1,91 @@
+{% extends "admin/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    /* Custom styling for the admin header to match the app's dark aesthetic */
+    #header {
+      background: #060D1A;
+      border-bottom: 2px solid #00E5A0;
+    }
+    #branding h1, #branding h1 a:link, #branding h1 a:visited {
+      color: #00E5A0;
+    }
+    /* Restyle the user-tools block */
+    #user-tools {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    #user-tools strong {
+      color: #fff;
+      margin-right: 15px;
+    }
+    #user-tools a {
+      color: #7B9BB5;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.2s;
+    }
+    #user-tools a:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    #user-tools form#logout-form {
+      margin: 0;
+      padding: 0;
+    }
+    #user-tools form#logout-form button {
+      background: rgba(255, 65, 84, 0.15);
+      color: #FF4154;
+      border: 1px solid rgba(255, 65, 84, 0.3);
+      padding: 6px 16px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    #user-tools form#logout-form button:hover {
+      background: rgba(255, 65, 84, 0.25);
+      border-color: rgba(255, 65, 84, 0.5);
+    }
+  </style>
+{% endblock %}
+
+{% block userlinks %}
+  {% if site_url %}
+      <a href="{{ site_url }}">{% translate 'View site' %}</a>
+  {% endif %}
+  
+  {% if user.is_active and user.is_staff %}
+      {% url 'django-admindocs-docroot' as docsroot %}
+      {% if docsroot %}
+          <a href="{{ docsroot }}">{% translate 'Documentation' %}</a>
+      {% endif %}
+  {% endif %}
+  
+  {% if user.has_usable_password %}
+      <a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a>
+  {% endif %}
+  
+  <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+      {% csrf_token %}
+      <button type="submit">{% translate 'Log out' %}</button>
+  </form>
+{% endblock %}

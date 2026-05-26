@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
-{% block title %}IRC Reports — PNG Compliance Hub 2026{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}IRC Reports - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 
 {% block content %}
 <div class="top-bar">
   <div>
     <div class="page-title"><i class="bi bi-file-earmark-pdf-fill"></i> IRC Export Centre</div>
-    <div class="page-subtitle">Generate official IRC return forms — GSTS65A · SWT Return · SBT Declaration</div>
+    <div class="page-subtitle">Generate official IRC return forms - GSTS65A · SWT Return · SBT Declaration</div>
   </div>
 </div>
 
@@ -86,19 +86,19 @@
     {% else %}
       <div class="small text-muted" style="padding:20px 0">No SBT declarations yet.<br>File your 2026 declaration.</div>
     {% endif %}
-    <a href="{% url 'sbt:declare' %}" class="btn-accent w-100" style="justify-content:center;margin-top:8px;font-size:12px"><i class="bi bi-plus-lg"></i> File 2026 Declaration</a>
+    <a href="{% url 'sbt:declare' %}" class="btn-accent w-100" style="justify-content:center;margin-top:8px;font-size:12px"><i class="bi bi-plus-lg"></i> File {{ TAX_YEAR }} Declaration</a>
   </div>
 
 </div>
 
 <!-- Filing Checklist -->
 <div class="glass-card">
-  <div style="font-size:15px;font-weight:700;margin-bottom:16px"><i class="bi bi-calendar-check"></i> 2026 IRC Filing Calendar</div>
+  <div style="font-size:15px;font-weight:700;margin-bottom:16px"><i class="bi bi-calendar-check"></i> {{ TAX_YEAR }} IRC Filing Calendar</div>
   <table class="table-glass">
     <thead><tr><th>Form</th><th>Frequency</th><th>Due Date</th><th>Notes</th></tr></thead>
     <tbody>
       <tr>
-        <td class="fw-600">GSTS65A — GST Return</td>
+        <td class="fw-600">GSTS65A - GST Return</td>
         <td><span class="badge badge-info">Monthly</span></td>
         <td>21st of following month</td>
         <td class="small text-muted">If GST registered</td>

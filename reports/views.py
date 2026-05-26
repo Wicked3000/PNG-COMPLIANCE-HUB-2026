@@ -1,4 +1,4 @@
-"""Reports App — Views (WeasyPrint PDF generation)"""
+﻿"""Reports App - Views (WeasyPrint PDF generation)"""
 
 import logging
 from django.conf import settings
@@ -11,6 +11,7 @@ from datetime import timedelta
 from gst.models import GSTReturn
 from swt.models import SWTReturn
 from sbt.models import SBTDeclaration
+from core.models import SystemSettings
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +98,6 @@ def payment_voucher_pdf(request, tax_type, amount):
         'tax_type_name': info['name'],
         'tax_code': info['code'],
         'amount': float(amount),
-        'period_name': 'Current Period 2026'
+        'period_name': f'Current Period {SystemSettings.load().active_tax_year}'
     }
     return _generate_pdf_response('reports/pdf/irc_payment_voucher.html', context, f"IRC_Payment_Voucher_{tax_type}")

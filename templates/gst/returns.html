@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
-{% block title %}GST Returns — PNG Compliance Hub 2026{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}GST Returns - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 
 {% block content %}
 <div class="top-bar">
   <div>
-    <div class="page-title">📋 GST Returns (GSTS65A)</div>
+    <div class="page-title"><i class="bi bi-clipboard-data text-accent"></i> GST Returns (GSTS65A)</div>
     <div class="page-subtitle">Historical filing records and payment status</div>
   </div>
 </div>
@@ -25,8 +25,8 @@
         {% for r in returns %}
         <tr>
           <td class="fw-600">{{ r.period_start|date:"M Y" }}</td>
-          <td style="text-align:right">K{{ r.total_sales_excl|floatformat:2 }}</td>
-          <td style="text-align:right" class="text-warn fw-700">K{{ r.net_gst_payable|floatformat:2 }}</td>
+          <td style="text-align:right">K{{ r.total_sales_excl|floatformat:'2g' }}</td>
+          <td style="text-align:right" class="text-warn fw-700">K{{ r.net_gst_payable|floatformat:'2g' }}</td>
           <td>
             <span class="badge {% if r.status == 'PAID' %}badge-success{% elif r.status == 'OVERDUE' %}badge-danger{% else %}badge-info{% endif %}">
               {{ r.get_status_display }}
@@ -41,7 +41,7 @@
     </table>
   {% else %}
     <div style="text-align:center;padding:40px 0;color:var(--text-muted)">
-      <div style="font-size:40px;margin-bottom:12px">📄</div>
+      <div style="font-size:40px;margin-bottom:12px"><i class="bi bi-file-earmark-text text-muted"></i></div>
       <p>No GST returns have been generated yet.</p>
       <div class="small">Returns are generated automatically at the end of each tax period.</div>
     </div>

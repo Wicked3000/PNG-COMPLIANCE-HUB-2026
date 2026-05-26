@@ -1,9 +1,9 @@
-<!-- HTMX: Sale success confirmation -->
+﻿<!-- HTMX: Sale success confirmation -->
 <div class="sale-success" style="text-align:center;padding:20px">
   <div style="font-size:48px;margin-bottom:12px;color:var(--accent-green)"><i class="bi bi-check-circle-fill"></i></div>
   <div style="font-size:16px;font-weight:700;color:var(--accent-green)">Sale Logged!</div>
   <div class="small text-muted" style="margin-top:6px">
-    K{{ entry.amount_excl_gst|floatformat:2 }} + GST K{{ entry.gst_amount|floatformat:2 }}
+    K{{ entry.amount_excl_gst|floatformat:'2g' }} + GST K{{ entry.gst_amount|floatformat:'2g' }}
     <br>{{ entry.date }} · {{ entry.description }}
   </div>
 </div>

@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
-{% block title %}Payroll History — PNG Compliance Hub 2026{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}Payroll History - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 
 {% block content %}
 <div class="top-bar">
   <div>
-    <div class="page-title">💰 Payroll History</div>
+    <div class="page-title"><i class="bi bi-cash-stack text-accent"></i> Payroll History</div>
     <div class="page-subtitle">Salary & Wages Tax (SWT) deductions for {{ business.business_name }}</div>
   </div>
 </div>
@@ -27,9 +27,9 @@
         <tr>
           <td class="small">{{ entry.pay_date|date:"d M Y" }}</td>
           <td class="fw-600">{{ entry.employee.full_name }}</td>
-          <td style="text-align:right">K{{ entry.gross_pay|floatformat:2 }}</td>
-          <td style="text-align:right" class="text-warn">K{{ entry.tax_withheld|floatformat:2 }}</td>
-          <td style="text-align:right" class="fw-700 text-accent">K{{ entry.net_pay|floatformat:2 }}</td>
+          <td style="text-align:right">K{{ entry.gross_pay|floatformat:'2g' }}</td>
+          <td style="text-align:right" class="text-warn">K{{ entry.tax_withheld|floatformat:'2g' }}</td>
+          <td style="text-align:right" class="fw-700 text-accent">K{{ entry.net_pay|floatformat:'2g' }}</td>
           <td class="small text-muted">{{ entry.period_start|date:"M Y" }}</td>
         </tr>
         {% endfor %}
@@ -37,7 +37,7 @@
     </table>
   {% else %}
     <div style="text-align:center;padding:40px 0;color:var(--text-muted)">
-      <div style="font-size:40px;margin-bottom:12px">💰</div>
+      <div style="font-size:40px;margin-bottom:12px"><i class="bi bi-cash-stack text-muted"></i></div>
       <p>No payroll entries recorded yet.</p>
       <a href="{% url 'swt:employees' %}" class="btn-accent" style="margin-top:12px;display:inline-flex">+ Manage Employees</a>
     </div>

@@ -1,23 +1,23 @@
-{% extends 'base.html' %}
-{% block title %}File SBT Declaration — PNG Compliance Hub 2026{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}File SBT Declaration - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 {% block content %}
 <div class="top-bar">
   <div><div class="page-title"><i class="bi bi-clipboard-check-fill text-accent"></i> File SBT Declaration</div>
-  <div class="page-subtitle">Annual Small Business Tax — 2026 Tax Year</div></div>
+  <div class="page-subtitle">Annual Small Business Tax - {{ TAX_YEAR }} Tax Year</div></div>
   <a href="{% url 'sbt:dashboard' %}" class="btn-ghost">← Back</a>
 </div>
 <div style="max-width:500px;margin:0 auto">
   <div class="glass-card">
-    <div style="font-size:15px;font-weight:700;margin-bottom:20px">2026 SBT Annual Declaration</div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:20px">{{ TAX_YEAR }} SBT Annual Declaration</div>
     {% if messages %}{% for msg in messages %}<div class="alert alert-success">{{ msg }}</div>{% endfor %}{% endif %}
     <form method="post" action="{% url 'sbt:declare' %}">
       {% csrf_token %}
       <div class="form-group">
-        <label class="form-label">Annual Turnover (K) — 2026 Financial Year</label>
+        <label class="form-label">Annual Turnover (K) - {{ TAX_YEAR }} Financial Year</label>
         <input type="number" name="annual_turnover" class="form-control" required placeholder="Enter your total annual turnover" min="0" step="100">
       </div>
       <div class="alert alert-warn"><i class="bi bi-exclamation-triangle-fill"></i> Declare your actual gross business turnover. Penalties apply for false declarations under the IRC Act.</div>
-      <button type="submit" class="btn-accent w-100" style="justify-content:center">Submit 2026 SBT Declaration</button>
+      <button type="submit" class="btn-accent w-100" style="justify-content:center">Submit {{ TAX_YEAR }} SBT Declaration</button>
     </form>
   </div>
 </div>

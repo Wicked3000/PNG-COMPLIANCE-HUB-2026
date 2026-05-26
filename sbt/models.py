@@ -1,8 +1,12 @@
-"""SBT App — Small Business Tax Models"""
+﻿"""SBT App - Small Business Tax Models"""
 
 from django.db import models
 from accounts.models import BusinessProfile
 
+
+def _current_tax_year():
+    from core.models import SystemSettings
+    return SystemSettings.load().active_tax_year
 
 class SBTDeclaration(models.Model):
     """Annual Small Business Tax declaration filed with IRC."""
@@ -16,13 +20,13 @@ class SBTDeclaration(models.Model):
     ]
 
     SBT_TYPE_CHOICES = [
-        ('FLAT',    'Flat Fee (K400) — Turnover < K50,000'),
-        ('PERCENT', '2% of Turnover — Turnover K50k–K250k'),
-        ('EXEMPT',  'Not Eligible — Turnover > K250,000'),
+        ('FLAT',    'Flat Fee (K400) - Turnover < K50,000'),
+        ('PERCENT', '2% of Turnover - Turnover K50k–K250k'),
+        ('EXEMPT',  'Not Eligible - Turnover > K250,000'),
     ]
 
     business          = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE, related_name='sbt_declarations')
-    tax_year          = models.PositiveIntegerField(default=2026)
+    tax_year          = models.PositiveIntegerField(default=_current_tax_year)
     annual_turnover   = models.DecimalField(max_digits=14, decimal_places=2)
     sbt_type          = models.CharField(max_length=10, choices=SBT_TYPE_CHOICES)
     sbt_liability     = models.DecimalField(max_digits=10, decimal_places=2, default=0)

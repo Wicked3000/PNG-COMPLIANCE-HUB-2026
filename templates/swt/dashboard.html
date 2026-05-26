@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
-{% block title %}SWT Payroll — PNG Compliance Hub 2026{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}SWT Payroll - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 
 {% block content %}
 <div class="top-bar">
   <div>
     <div class="page-title"><i class="bi bi-people"></i> SWT Payroll</div>
-    <div class="page-subtitle">Salary & Wages Tax — 2026 Progressive Brackets</div>
+    <div class="page-subtitle">Salary & Wages Tax - 2026 Progressive Brackets</div>
   </div>
   <div class="top-actions">
     <a href="{% url 'swt:employees' %}" class="btn-accent"><i class="bi bi-person-plus"></i> Add Employee</a>
@@ -16,8 +16,8 @@
 <!-- SWT Bracket Reference Card -->
 <div class="glass-card mb-4">
   <div class="d-flex align-center justify-between mb-4">
-    <div style="font-size:15px;font-weight:700"><i class="bi bi-bar-chart-steps"></i> 2026 Resident SWT Brackets</div>
-    <span class="badge badge-info">IRC 2026</span>
+    <div style="font-size:15px;font-weight:700"><i class="bi bi-bar-chart-steps"></i> {{ TAX_YEAR }} Resident SWT Brackets</div>
+    <span class="badge badge-info">IRC {{ TAX_YEAR }}</span>
   </div>
   <table class="table-glass">
     <thead><tr><th>Annual Income Band</th><th>Marginal Rate</th><th>Max Tax in Band</th></tr></thead>
@@ -46,12 +46,12 @@
         {% for emp in employees %}
         <tr>
           <td class="fw-600">{{ emp.full_name }}</td>
-          <td class="text-muted small">{{ emp.position|default:"—" }}</td>
+          <td class="text-muted small">{{ emp.position|default:"-" }}</td>
           <td><span class="badge badge-info">{{ emp.get_payment_frequency_display }}</span></td>
-          <td style="text-align:right;font-weight:600">K{{ emp.annual_salary|floatformat:2 }}</td>
+          <td style="text-align:right;font-weight:600">K{{ emp.annual_salary|floatformat:'2g' }}</td>
           <td style="text-align:right" class="text-warn">
             <!-- Quick estimate displayed here -->
-            —
+            -
           </td>
           <td>
             {% if emp.is_resident %}<span class="badge badge-success">✓ Resident</span>

@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}SBT Calculator — PNG Compliance Hub 2026{% endblock %}
+{% block title %}SBT Calculator - {{ APP_NAME }} {{ TAX_YEAR }}{% endblock %}
 
 {% block content %}
 <div class="top-bar">
   <div>
     <div class="page-title"><i class="bi bi-bar-chart text-accent"></i> SBT Calculator</div>
-    <div class="page-subtitle">Small Business Tax — IRC 2026 Rates</div>
+    <div class="page-subtitle">Small Business Tax - IRC {{ TAX_YEAR }} Rates</div>
   </div>
   <a href="{% url 'sbt:dashboard' %}" class="btn-ghost">← Back</a>
 </div>
@@ -17,7 +17,7 @@
       {% csrf_token %}
       <div class="form-group">
         <label class="form-label">Estimated Annual Turnover (K)</label>
-        <input type="number" name="turnover" class="form-control" placeholder="e.g. 80000"
+        <input type="number" name="turnover" class="form-control" placeholder="e.g. K80,000"
                value="{{ request.POST.turnover|default:'' }}" min="0" step="100" required>
       </div>
       <button type="submit" class="btn-accent w-100" style="justify-content:center"><i class="bi bi-lightning-charge-fill"></i> Calculate SBT</button>
@@ -35,7 +35,7 @@
       </div>
       <div style="padding:10px 14px;background:rgba(255,77,109,0.06);border-radius:10px;border:1px solid rgba(255,77,109,0.15)">
         <div class="small fw-600">K250,000+</div>
-        <div style="font-size:14px;font-weight:600;color:var(--accent-danger)">Not eligible — standard tax regime</div>
+        <div style="font-size:14px;font-weight:600;color:var(--accent-danger)">Not eligible - standard tax regime</div>
       </div>
     </div>
   </div>
@@ -45,17 +45,17 @@
     <div class="card-label">SBT Result</div>
     <div style="margin-top:16px">
       {% if result.is_eligible %}
-        <div style="font-size:36px;font-weight:800;color:var(--accent-green)">K{{ result.sbt_liability|floatformat:2 }}</div>
+        <div style="font-size:36px;font-weight:800;color:var(--accent-green)">K{{ result.sbt_liability|floatformat:'2g' }}</div>
         <div class="small text-muted" style="margin-top:4px">{{ result.rate_display }}</div>
         <div class="alert alert-success" style="margin-top:20px"><i class="bi bi-check-circle-fill"></i> {{ result.note }}</div>
         <hr class="divider">
         <div style="display:flex;flex-direction:column;gap:8px">
-          <div class="d-flex justify-between"><span class="small text-muted">Annual Turnover</span><span class="fw-600">K{{ result.annual_turnover|floatformat:2 }}</span></div>
+          <div class="d-flex justify-between"><span class="small text-muted">Annual Turnover</span><span class="fw-600">K{{ result.annual_turnover|floatformat:'2g' }}</span></div>
           <div class="d-flex justify-between"><span class="small text-muted">Tax Type</span><span class="fw-600">{{ result.sbt_type }}</span></div>
-          <div class="d-flex justify-between"><span class="small text-muted">Annual SBT Liability</span><span class="fw-700 text-accent">K{{ result.sbt_liability|floatformat:2 }}</span></div>
+          <div class="d-flex justify-between"><span class="small text-muted">Annual SBT Liability</span><span class="fw-700 text-accent">K{{ result.sbt_liability|floatformat:'2g' }}</span></div>
         </div>
         <a href="{% url 'sbt:declare' %}" class="btn-accent w-100" style="justify-content:center;margin-top:20px">
-          <i class="bi bi-clipboard-check"></i> File 2026 Declaration
+          <i class="bi bi-clipboard-check"></i> File {{ TAX_YEAR }} Declaration
         </a>
       {% else %}
         <div style="font-size:24px;font-weight:700;color:var(--accent-danger)">Not Eligible for SBT</div>

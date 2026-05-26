@@ -1,4 +1,4 @@
-"""Accounts App — Views"""
+﻿"""Accounts App - Views"""
 
 import json
 import base64
@@ -21,7 +21,7 @@ try:
         UserVerificationRequirement,
         AuthenticatorAttachment,
     )
-    from webauthn.helpers import options_to_json, verify_registration_response, verify_authentication_response
+    from webauthn import options_to_json, verify_registration_response, verify_authentication_response
     WEBAUTHN_AVAILABLE = True
 except ImportError:
     WEBAUTHN_AVAILABLE = False
@@ -35,6 +35,9 @@ def login_view(request):
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user:
+            if user.is_staff:
+                messages.error(request, 'Administrators must log in via the Admin Portal.')
+                return render(request, 'accounts/login.html')
             login(request, user)
             return redirect(request.GET.get('next', 'dashboard:home'))
         messages.error(request, 'Invalid credentials. Please try again.')
@@ -67,7 +70,7 @@ def register(request):
 
 @login_required
 def setup(request):
-    """Business profile setup — shown after registration."""
+    """Business profile setup - shown after registration."""
     if hasattr(request.user, 'business'):
         return redirect('dashboard:home')
     if request.method == 'POST':
@@ -96,6 +99,18 @@ def profile(request):
         business = request.user.business
     except BusinessProfile.DoesNotExist:
         return redirect('accounts:setup')
+        
+    if request.method == 'POST':
+        business.role = request.POST.get('role', business.role)
+        business.notify_method = request.POST.get('notify_method', business.notify_method)
+        try:
+            business.notify_days_before = int(request.POST.get('notify_days_before', business.notify_days_before))
+        except ValueError:
+            pass
+        business.save()
+        messages.success(request, 'System settings updated successfully.')
+        return redirect('accounts:profile')
+        
     credentials = UserCredential.objects.filter(user=request.user)
     return render(request, 'accounts/profile.html', {
         'business': business,
@@ -121,7 +136,7 @@ def biometric_register_options(request):
     request.session['webauthn_registration_challenge'] = challenge_b64
     
     options = webauthn.generate_registration_options(
-        rp_id=settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost',
+        rp_id=request.get_host().split(':')[0],
         rp_name='PNG Compliance Hub',
         user_id=raw_user_id,
         user_name=request.user.username,
@@ -147,7 +162,7 @@ def biometric_register_verify(request):
             credential=body,
             expected_challenge=expected_challenge,
             expected_origin=f"http://{request.get_host()}",
-            expected_rp_id=settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost',
+            expected_rp_id=request.get_host().split(':')[0],
         )
         
         # Save credential to DB
@@ -171,7 +186,7 @@ def biometric_login_options(request):
     request.session['webauthn_login_challenge'] = challenge_b64
     
     options = webauthn.generate_authentication_options(
-        rp_id=settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost',
+        rp_id=request.get_host().split(':')[0],
         challenge=raw_challenge,
     )
     return JsonResponse(json.loads(options_to_json(options)))
@@ -193,7 +208,7 @@ def biometric_login_verify(request):
             credential=body,
             expected_challenge=expected_challenge,
             expected_origin=f"http://{request.get_host()}",
-            expected_rp_id=settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost',
+            expected_rp_id=request.get_host().split(':')[0],
             credential_public_key=cred_record.public_key,
             credential_current_sign_count=cred_record.sign_count,
         )

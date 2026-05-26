@@ -1,4 +1,4 @@
-"""Accounts App — Business Profile & Auth Models"""
+﻿"""Accounts App - Business Profile & Auth Models"""
 
 from django.db import models
 from django.contrib.auth.models import User

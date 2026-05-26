@@ -1,10 +1,10 @@
-"""
-PNG Compliance Hub 2026 — Core Tax Engine
+﻿"""
+PNG Compliance Hub 2026 - Core Tax Engine
 =========================================
 TaxCalculator class implementing 2026 IRC legal specifications for:
-  - SWT (Salary & Wages Tax) — Resident progressive brackets
-  - GST (Goods & Services Tax) — 10% with Input Tax Credits
-  - SBT (Small Business Tax) — Turnover-based
+  - SWT (Salary & Wages Tax) - Resident progressive brackets
+  - GST (Goods & Services Tax) - 10% with Input Tax Credits
+  - SBT (Small Business Tax) - Turnover-based
 
 All monetary values are in Papua New Guinea Kina (PGK).
 """
@@ -75,7 +75,7 @@ class TaxCalculator:
                 break
 
             if upper_limit is None:
-                # Top bracket — no ceiling
+                # Top bracket - no ceiling
                 taxable_in_band = remaining
             else:
                 band_width = upper_limit - previous_limit
@@ -166,7 +166,7 @@ class TaxCalculator:
                 'is_eligible': False,
                 'annual_turnover': annual_turnover,
                 'sbt_liability': Decimal('0'),
-                'sbt_type': 'Not eligible — standard GST/Income Tax applies',
+                'sbt_type': 'Not eligible - standard GST/Income Tax applies',
                 'note': 'Turnover exceeds K250,000. Business must register for GST and pay income tax.',
             }
 

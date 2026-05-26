@@ -55,7 +55,7 @@ async function registerBiometrics() {
         });
 
         if (result.ok) {
-            alert('✅ Biometric device registered successfully!');
+            alert('Success: Biometric device registered successfully!');
             location.reload();
         } else {
             const error = await result.json();

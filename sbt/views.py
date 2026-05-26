@@ -1,4 +1,4 @@
-"""SBT App — Views"""
+﻿"""SBT App - Views"""
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -33,8 +33,11 @@ def declare(request):
         turnover = Decimal(request.POST.get('annual_turnover', '0') or '0')
         sbt = TaxCalculator.calculate_sbt(turnover)
         from django.utils import timezone
+        from core.models import SystemSettings
+        
+        active_year = SystemSettings.load().active_tax_year
         SBTDeclaration.objects.update_or_create(
-            business=business, tax_year=2026,
+            business=business, tax_year=active_year,
             defaults={
                 'annual_turnover': turnover,
                 'sbt_type': 'FLAT' if sbt['sbt_type'] == 'Flat Fee' else ('PERCENT' if sbt.get('rate_display') else 'EXEMPT'),
