@@ -1,0 +1,151 @@
+{% extends "admin/index.html" %}
+{% load i18n static error_tags admin_analytics %}
+
+{% block messages %}
+    {{ block.super }}
+    
+    <style>
+        /* Make sure it takes full width but has breathing room */
+        .dashboard-full-width { 
+            width: 100%; 
+            display: block; 
+            padding: 20px 40px; 
+            box-sizing: border-box; 
+        }
+        
+        /* Mobile overrides */
+        @media (max-width: 768px) {
+            .dashboard-cards { flex-direction: column !important; }
+            .dashboard-cards > div { width: 100%; }
+        }
+    </style>
+
+    {% get_unresolved_errors_count as unresolved_count %}
+    
+    <div class="dashboard-full-width">
+        <div style="padding: 16px; margin-bottom: 20px; border-radius: 8px; width: 100%; box-sizing: border-box;
+                {% if unresolved_count > 0 %}
+                background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; box-shadow: 0 0 15px rgba(220, 53, 69, 0.4);
+                {% else %}
+                background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
+                {% endif %}">
+        
+        <h2 style="margin-top: 0; margin-bottom: 8px; color: inherit; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+            {% if unresolved_count > 0 %}
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: #dc3545; animation: pulse 1.5s infinite;"></span>
+                SYSTEM ALERT: CRITICAL ERRORS DETECTED
+            {% else %}
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: #28a745;"></span>
+                System Health: Healthy
+            {% endif %}
+        </h2>
+        
+        {% if unresolved_count > 0 %}
+            <p style="margin: 0;">There are <strong>{{ unresolved_count }}</strong> unresolved system error(s). Please review them in the <a href="{% url 'admin:core_systemerrorlog_changelist' %}" style="color: #c82333; font-weight: bold; text-decoration: underline;">System Errors log</a> immediately.</p>
+        {% else %}
+            <p style="margin: 0;">No unresolved errors. The platform is running smoothly.</p>
+        {% endif %}
+    </div>
+    
+    <style>
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+    </style>
+
+    <!-- Analytics Dashboards -->
+    {% get_business_stats_json as business_stats %}
+    {% get_error_stats_json as error_stats %}
+    
+    <div class="dashboard-cards" style="display: flex; flex-direction: row; width: 100%; gap: 20px; margin-bottom: 30px;">
+        <!-- Card 1 -->
+        <div style="flex: 1; min-width: 0; background: var(--body-bg, #1a1a1a); border: 1px solid var(--border-color, #333); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; font-weight: 600; color: var(--body-fg, #eee);">Registered Businesses by Province</h3>
+            <div style="position: relative; height: 250px; width: 100%;">
+                <canvas id="businessChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Card 2 -->
+        <div style="flex: 1; min-width: 0; background: var(--body-bg, #1a1a1a); border: 1px solid var(--border-color, #333); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; font-weight: 600; color: var(--body-fg, #eee);">System Error Resolution Status</h3>
+            <div style="position: relative; height: 250px; width: 100%;">
+                <canvas id="errorChart"></canvas>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme settings for dark mode compatibility
+            Chart.defaults.color = '#888';
+            Chart.defaults.font.family = 'system-ui, -apple-system, sans-serif';
+            
+            // Render Business Chart (Doughnut)
+            const businessData = {{ business_stats|safe }};
+            
+            // Handle empty data state elegantly
+            if (businessData.labels.length === 0) {
+                businessData.labels = ['No Data Yet'];
+                businessData.data = [1]; // dummy data to render a grey ring
+            }
+
+            new Chart(document.getElementById('businessChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: businessData.labels,
+                    datasets: [{
+                        data: businessData.data,
+                        backgroundColor: businessData.labels[0] === 'No Data Yet' ? ['#333'] : [
+                            '#00e5a0', '#00bfa5', '#009688', '#4db6ac', '#80cbc4',
+                            '#3498db', '#2980b9', '#9b59b6', '#8e44ad', '#e74c3c'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: { enabled: businessData.labels[0] !== 'No Data Yet' }
+                    }
+                }
+            });
+
+            // Render Error Chart (Bar)
+            const errorData = {{ error_stats|safe }};
+            new Chart(document.getElementById('errorChart'), {
+                type: 'bar',
+                data: {
+                    labels: errorData.labels,
+                    datasets: [{
+                        label: 'Count',
+                        data: errorData.data,
+                        backgroundColor: ['#dc3545', '#28a745'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    {{ block.super }}
+{% endblock %}

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -94,16 +94,14 @@
     <div class="sidebar-footer">
       <div class="user-card">
         <div class="user-avatar">{{ user.username|first|upper }}</div>
-        <div>
+        <div style="flex:1">
           <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
           <div class="user-role">{% if user.business %}{{ user.business.business_name|truncatechars:20 }}{% else %}Setup Pending{% endif %}</div>
         </div>
-      <div class="user-card" style="margin-top:8px">
-        <div id="connectivityIndicator" style="display:flex;align-items:center;gap:8px;font-size:11px;padding:4px 8px;border-radius:6px;background:rgba(0,229,160,0.1);color:var(--accent-green)">
+        <div id="connectivityIndicator" style="display:flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(0,229,160,0.1);color:var(--accent-green);white-space:nowrap">
           <span class="pulse-green"></span> Online
         </div>
       </div>
-    </div>
   </aside>
 
   <!-- ── Main Content ─────────────────────────────────────────── -->

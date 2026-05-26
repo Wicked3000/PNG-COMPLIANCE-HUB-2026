@@ -24,7 +24,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Employee Residency</label>
-        <select name="is_resident" class="form-control form-select">
+        <select name="is_resident" class="form-control form-select" aria-label="Employee Residency">
           <option value="true" {% if request.POST.is_resident != 'false' %}selected{% endif %}>Resident (PNG)</option>
           <option value="false" {% if request.POST.is_resident == 'false' %}selected{% endif %}>Non-Resident (22% flat)</option>
         </select>

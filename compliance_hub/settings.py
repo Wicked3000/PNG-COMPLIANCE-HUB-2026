@@ -1,4 +1,4 @@
-﻿"""
+"""
 PNG Compliance Hub 2026
 Django Settings - Development & Production combined
 """
@@ -13,6 +13,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-png-compliance-hub-2026-dev-key-change-in-prod')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
+
+ADMINS = [
+    ('System Admin', 'admin@pngcompliance.com'),
+]
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 CSRF_USE_SESSIONS = True
 SESSION_COOKIE_AGE = 86400 * 30  # 30 days
@@ -56,6 +61,7 @@ MIDDLEWARE = [
     'core.middleware.RoleSeparationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',  # HTMX request detection
+    'core.middleware.ErrorLoggingMiddleware', # Custom error tracking
 ]
 
 ROOT_URLCONF = 'compliance_hub.urls'

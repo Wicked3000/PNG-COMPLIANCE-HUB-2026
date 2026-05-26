@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -29,7 +29,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div class="form-group">
           <label class="form-label">Province</label>
-          <select name="province" class="form-control form-select">
+          <select name="province" class="form-control form-select" aria-label="Province">
             {% for code, name in provinces %}
               <option value="{{ code }}">{{ name }}</option>
             {% endfor %}
@@ -37,7 +37,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Industry</label>
-          <select name="industry" class="form-control form-select">
+          <select name="industry" class="form-control form-select" aria-label="Industry">
             {% for code, name in industries %}
               <option value="{{ code }}">{{ name }}</option>
             {% endfor %}

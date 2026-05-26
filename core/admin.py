@@ -37,3 +37,20 @@ class CustomUserAdmin(UserAdmin):
             )
         return "N/A"
     impersonate_action.short_description = 'Ghost Mode'
+
+from .models import SystemErrorLog
+
+@admin.action(description="Mark selected errors as Resolved")
+def mark_as_resolved(modeladmin, request, queryset):
+    queryset.update(is_resolved=True)
+
+@admin.register(SystemErrorLog)
+class SystemErrorLogAdmin(admin.ModelAdmin):
+    list_display = ('timestamp', 'exception_type', 'path', 'method', 'user', 'is_resolved')
+    list_filter = ('is_resolved', 'timestamp', 'method')
+    search_fields = ('exception_type', 'exception_message', 'path', 'user__username')
+    readonly_fields = ('path', 'method', 'user', 'exception_type', 'exception_message', 'traceback', 'timestamp')
+    actions = [mark_as_resolved]
+    
+    def has_add_permission(self, request):
+        return False
